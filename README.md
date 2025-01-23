@@ -19,3 +19,8 @@ tilslutt:
 # for å altså bruke openai sin api
 pip install openai 
 ```
+
+om du vil kjøre server, bare kjør dette på terminalen
+```
+flask --app main run
+```

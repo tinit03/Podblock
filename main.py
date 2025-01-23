@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import os
 import openai
-import json
 import whisper
 client = openai.OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 model = whisper.load_model("tiny.en")

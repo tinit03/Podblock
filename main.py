@@ -2,9 +2,16 @@ from flask import Flask, request, jsonify
 import os
 import openai
 import whisper
-client = openai.OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Access the API key from environment variables
+api_key = os.environ.get('OPENAI_API_KEY')
 model = whisper.load_model("tiny.en")
 
+client=openai.OpenAI(api_key=api_key)
 app = Flask(__name__)
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

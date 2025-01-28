@@ -2,7 +2,8 @@ import requests
 from flask import Flask, request, jsonify
 import os
 import openai
-import whisper
+#import whisper
+from faster_whisper import WhisperModel
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
@@ -10,8 +11,8 @@ load_dotenv()
 
 # Access the API key from environment variables
 api_key = os.environ.get('OPENAI_API_KEY')
-model = whisper.load_model("base.en")
-
+#model = whisper.load_model("base.en")
+model = WhisperModel("small.en", device="cpu", compute_type="int8")
 client=openai.OpenAI(api_key=api_key)
 app = Flask(__name__)
 if __name__ == '__main__':
@@ -84,18 +85,19 @@ def post_url():
             return jsonify({"error": str(e)}), 500
 def process(audio_name):
     try:
-        result=model.transcribe(word_timestamps=True
-                                ,audio=audio_name)
+        # result=model.transcribe(word_timestamps=True
+        #                         ,audio=audio_name)
+        segments, _ = model.transcribe(audio_name, word_timestamps=True)
 
         # Extract word-level timestamps
         word_timestamps = [
             {
-                "start": word["start"],
-                "end": word["end"],
-                "text": word["word"]
+                "start": word.start,
+                "end": word.end,
+                "text": word.word
             }
-            for segment in result.get("segments", [])
-            for word in segment["words"]
+            for segment in segments
+            for word in segment.words
         ]
 
         # Format the data to send to ChatGPT

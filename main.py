@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, request, jsonify
 import os
 import openai
@@ -9,7 +10,7 @@ load_dotenv()
 
 # Access the API key from environment variables
 api_key = os.environ.get('OPENAI_API_KEY')
-model = whisper.load_model("tiny.en")
+model = whisper.load_model("base.en")
 
 client=openai.OpenAI(api_key=api_key)
 app = Flask(__name__)
@@ -56,7 +57,31 @@ def upload_audio():
     except Exception as e:
         return f"An error occured, {str(e)}", 500
 
+@app.route('/download', methods=['POST'])
+def post_url():
+    data = request.json
+    if not data or 'url' not in data:
+        return jsonify({"error": "No URL provided"}), 400
 
+    url=data['url']
+
+    try:
+        response = requests.get(url, stream=True)
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to download file"}), 400
+        filename = url.split("/")[-1].split('?')[0]
+        if not allowed_file(filename):
+            return jsonify({"error": "actually, we don't support this format"})
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        # Process the downloaded audio file
+        result = process(file_path)
+        return jsonify(result), 200
+    except Exception as e:
+            return jsonify({"error": str(e)}), 500
 def process(audio_name):
     try:
         result=model.transcribe(word_timestamps=True

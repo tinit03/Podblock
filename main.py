@@ -3,8 +3,9 @@ from flask import Flask, request, jsonify
 import os
 import openai
 #import whisper
-from faster_whisper import WhisperModel
+from faster_whisper import WhisperModel, BatchedInferencePipeline
 from dotenv import load_dotenv
+os.environ["OMP_NUM_THREADS"] = "3"
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -13,6 +14,8 @@ load_dotenv()
 api_key = os.environ.get('OPENAI_API_KEY')
 #model = whisper.load_model("base.en")
 model = WhisperModel("small.en", device="cpu", compute_type="int8")
+batched_model = BatchedInferencePipeline(model=model)
+
 client=openai.OpenAI(api_key=api_key)
 app = Flask(__name__)
 if __name__ == '__main__':
@@ -87,7 +90,7 @@ def process(audio_name):
     try:
         # result=model.transcribe(word_timestamps=True
         #                         ,audio=audio_name)
-        segments, _ = model.transcribe(audio_name, word_timestamps=True)
+        segments, _ = batched_model.transcribe(audio_name, word_timestamps=True,batch_size=8)
 
         # Extract word-level timestamps
         word_timestamps = [

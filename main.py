@@ -5,28 +5,40 @@ import openai
 #import whisper
 from faster_whisper import WhisperModel, BatchedInferencePipeline
 from dotenv import load_dotenv
-os.environ["OMP_NUM_THREADS"] = "3"
-
+from flask_cors import CORS
+from pydub import AudioSegment
 # Load environment variables from the .env file
 load_dotenv()
 
 # Access the API key from environment variables
 api_key = os.environ.get('OPENAI_API_KEY')
 #model = whisper.load_model("base.en")
-model = WhisperModel("small.en", device="cpu", compute_type="int8")
+model = WhisperModel("turbo", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 
 client=openai.OpenAI(api_key=api_key)
 app = Flask(__name__)
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
+CORS(app)
 ALLOWED_EXTENSIONS = {'wav','mp3','flac'}
 app.config['UPLOAD_FOLDER'] = './uploads'
 #app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def chunk_audio(file_path, chunk_length_ms=240000):
+    """Splits an audio file into smaller chunks."""
+    audio = AudioSegment.from_file(file_path)
+    chunks = [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
+    chunk_files = []
+    for idx, chunk in enumerate(chunks):
+        chunk_filename = f"{file_path}_chunk_{idx}.mp3"
+        chunk.export(chunk_filename, format="mp3")
+        chunk_files.append(chunk_filename)
+    return chunk_files
+
 
 
 @app.route("/")

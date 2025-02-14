@@ -7,13 +7,14 @@ from faster_whisper import WhisperModel, BatchedInferencePipeline
 from dotenv import load_dotenv
 from flask_cors import CORS
 from pydub import AudioSegment
+import re
 # Load environment variables from the .env file
 load_dotenv()
 
 # Access the API key from environment variables
 api_key = os.environ.get('OPENAI_API_KEY')
 #model = whisper.load_model("base.en")
-model = WhisperModel("turbo", device="cpu", compute_type="int8")
+model = WhisperModel("small", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 
 client=openai.OpenAI(api_key=api_key)
@@ -190,6 +191,7 @@ def process(audio_name):
                     continue  # In case of formatting issues, skip line
 
         # Return the ad segments as JSON
+        print(ad_segments)
         return {
             "ad_detection": ad_segments
         }
@@ -245,30 +247,23 @@ def process_proxy(audio_name):
                 ]
             )
             classification = completion.choices[0].message.content.strip()
-            if classification.lower() == "no ad detected.":
-                return {
-                    "ad_detection": "No ad detected"
-                }
-            print(classification)
-            # Parse the formatted ad segments into a structured dictionary
-            ad_lines = classification.split("\n")
-            for line in ad_lines:
-                # Extract start, end, and summary from the format "start:xxx, end:xxx, summary: 'xxxx'"
-                parts = line.split(", ")
-                if len(parts) == 3:
-                    try:
-                        start = float(parts[0].split(":")[1].strip())
-                        end = float(parts[1].split(":")[1].strip())
-                        summary = parts[2].split(":")[1].strip().strip("'")
-                        segment = {
-                            "start": start,
-                            "end": end,
-                            "summary": summary,
-                        }
-                        ad_segments.append(segment)
-                    except ValueError:
-                        continue  # In case of formatting issues, skip line
 
+            print(classification)
+            pattern = r"start:\s*([\d.]+).*?end:\s*([\d.]+).*?summary:\s*['\"]?([^'\"]+)['\"]?"
+            matches = re.findall(pattern, classification, re.DOTALL)
+
+            for match in matches:
+                try:
+                    start = float(match[0])  # Extract start time
+                    end = float(match[1])  # Extract end time
+                    summary = match[2].strip()  # Extract summary text
+
+                    segment = {"start": start, "end": end, "summary": summary}
+                    ad_segments.append(segment)
+                except ValueError:
+                    continue  # Skip if extraction fails
+
+        print(ad_segments)
         if ad_segments:
             new_audio_path = cut_out_ads(audio_name, ad_segments)
             return {

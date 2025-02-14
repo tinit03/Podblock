@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import os
 import openai
 #import whisper
@@ -52,7 +52,7 @@ def login():
 
 
 @app.route('/upload_from_extension', methods=['POST'])
-def upload_audio():
+def extension():
     if 'file' not in request.files:
         return "No file found", 400
 
@@ -95,7 +95,8 @@ def upload_audio():
         file.save(file_path)
         # Process the uploaded audio file
         result = process_proxy(file_path)
-        return jsonify(result), 200
+        print(result["audio_file"])
+        return send_file(result["audio_file"], as_attachment=True)
     except Exception as e:
         return f"An error occured, {str(e)}", 500
 

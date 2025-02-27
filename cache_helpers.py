@@ -8,6 +8,6 @@ def setup_cache(app):
     cache.init_app(app)
 
 
-def cache_audio(filename):
+def cache_audio(url, result_path, timeout=18000):
     """Cache the audio file after processing."""
-    cache.add(filename)
+    cache.set(url, result_path, timeout=timeout)

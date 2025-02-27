@@ -166,3 +166,39 @@ def cut_out_ads(audio_name, ad_segments):
     new_audio.export(new_audio_path, format="mp3")
     os.remove(audio_name)
     return new_audio_path
+
+
+def process_urls_in_background(urls):
+    """Runs the URL processing in the background."""
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for url in urls:
+            if not cache.get(url):  # Process only if not in cache
+                executor.submit(process_audio_from_url, url)
+def process_audio_from_url(url):
+    """Download and process an audio file if not already cached."""
+    if cache.get(url):  # Skip if already processed
+        print(f"Skipping {url}, already in cache.")
+        return
+    try:
+        print("I REACHED HERE")
+        response = requests.get(url, stream=True)
+        if response.status_code != 200:
+            print(f"Failed to download {url}")
+            return
+        filename = extract_mp3_name(url)  # Extract filename from URL
+        if not allowed_file(filename, ALLOWED_EXTENSIONS):
+            print(f"File format not allowed: {filename}")
+            return
+        file_path = save_file(filename, './uploads')
+        print(f"File saved at: {file_path}")
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        transcription = transcribe(file_path)
+        ad_segments = detect_ads(transcription)
+        result = cut_out_ads(file_path, ad_segments)
+        cache_audio(url, result)  # Store processed file in cache
+        print(f"Processing complete for {url}")
+
+    except Exception as e:
+        print(f"Error processing {url}: {str(e)}")

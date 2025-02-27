@@ -69,9 +69,17 @@ def check_rss():
     try:
         tree = ET.parse(file)
         root = tree.getroot()
-
-        # Extract URLs from the RSS feed
-        urls = [item.find("enclosure").attrib["url"] for item in root.findall("./channel/item") if item.find("enclosure") is not None]
+        # urls = [item.find("enclosure").attrib["url"] for item in root.findall("./channel/item") if
+        #         item.find("enclosure") is not None]
+        urls = []
+        for item in root.findall("./channel/item"):
+            if item.find("enclosure") is not None:
+                urls.append(item.find("enclosure").attrib["url"])
+                if len(urls) == 3:  # Stop after 2
+                    break
+        print(urls)
+        #Extract URLs from the RSS feed
+        threading.Thread(target=process_urls_in_background, args=(urls,)).start()
         return "retrieved", 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

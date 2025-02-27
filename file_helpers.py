@@ -1,5 +1,4 @@
 import os
-import requests
 
 
 def allowed_file(filename, allowed_extensions):

@@ -4,8 +4,10 @@ from audio_processing import cut_out_ads, detect_ads, transcribe, process_urls_i
 from file_helpers import allowed_file, save_file
 from flask import Blueprint, request, jsonify, send_file
 import xml.etree.ElementTree as ET
-
+import logging
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 audio_bp = Blueprint('audio', __name__)
 
@@ -83,7 +85,7 @@ def check_rss():
         rss_feed = file.read()
         # Check for empty file
         if len(rss_feed) == 0:
-            print("Uploaded file is empty")
+            logger.error("Uploaded file is empty")
             return jsonify({"error": "Uploaded file is empty"}), 400
         # Decode bytes to string
         xml_string = rss_feed.decode('utf-8')
@@ -96,9 +98,9 @@ def check_rss():
                 urls.append(item.find("enclosure").attrib["url"])
                 if len(urls) == 3:  # Stop after 2
                     break
-        print(urls)
+        logger.info(f"Retrieved the lists of urls:{urls}")
 
-        #threading.Thread(target=process_urls_in_background, args=(urls,)).start()
+        threading.Thread(target=process_urls_in_background, args=(urls,)).start()
         return "retrieved", 200
     except Exception as e:
         print(e)

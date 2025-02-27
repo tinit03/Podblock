@@ -11,6 +11,13 @@ import re
 from dotenv import load_dotenv
 from cache_helpers import cache, cache_audio
 from file_helpers import allowed_file, save_file
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+logger = logging.getLogger(__name__)
+
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 def extract_mp3_name(url):
     """Extracts the MP3 filename from the given URL."""
@@ -20,7 +27,7 @@ def extract_mp3_name(url):
 
 load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("tiny", device="cpu", compute_type="int8")
+model = WhisperModel("tiny.en", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
@@ -39,7 +46,7 @@ def transcribe(audio_name):
         audio = AudioSegment.from_file(audio_name)  # Access the audio
         duration = audio.duration_seconds
         if duration < 360:  # Less than 6 minutes (360 seconds)
-            print("Audio file is less than 6 minutes, skipping chunking.")
+            logger.info("Audio file is less than 6 minutes, skipping chunking.")
             chunk_files = [(audio_name, duration)]  # No chunking, just use the original file
         else:
             # Split the audio file into chunks if it's longer than 6
@@ -48,7 +55,7 @@ def transcribe(audio_name):
         all_transcriptions = []
 
         for i, (chunk, chunk_duration) in enumerate(chunk_files):
-            print(f"[INFO] Processing chunk {i+1}/{len(chunk_files)} - Duration: {chunk_duration:.2f} seconds")
+            logger.info(f"[INFO] Processing chunk {i+1}/{len(chunk_files)} - Duration: {chunk_duration:.2f} seconds")
 
             buffer = BytesIO()
             chunk.export(buffer, format="mp3")
@@ -69,11 +76,11 @@ def transcribe(audio_name):
                 [f"[{w['start']}-{w['end']}] {w['text']}" for w in word_timestamps]
             )
             all_transcriptions.append(words_with_timestamps)
-            print(f"[INFO] Finished transcribing chunk {i+1}/{len(chunk_files)}")
+            logger.info(f"[INFO] Finished transcribing chunk {i+1}/{len(chunk_files)}")
 
             total_duration += chunk_duration
 
-        print(f"[INFO] Transcription complete for {audio_name}")
+        logger.info(f"[INFO] Transcription complete for {audio_name}")
         return "\n".join(all_transcriptions)
     except Exception as e:
         return str(e)
@@ -168,23 +175,24 @@ def process_urls_in_background(urls):
         for url in urls:
             if not cache.get(url):  # Process only if not in cache
                 executor.submit(process_audio_from_url, url)
+            else:
+                logger.info(f"{url} is already in the cache. Skip process")
 def process_audio_from_url(url):
     """Download and process an audio file if not already cached."""
     if cache.get(url):  # Skip if already processed
-        print(f"Skipping {url}, already in cache.")
+        logger.info(f"Skipping {url}, already in cache.")
         return
     try:
-        print("I REACHED HERE")
         response = requests.get(url, stream=True)
         if response.status_code != 200:
-            print(f"Failed to download {url}")
+            logger.error(f"Failed to download {url}")
             return
         filename = extract_mp3_name(url)  # Extract filename from URL
         if not allowed_file(filename, ALLOWED_EXTENSIONS):
-            print(f"File format not allowed: {filename}")
+            logger.error(f"File format not allowed: {filename}")
             return
         file_path = save_file(filename, './uploads')
-        print(f"File saved at: {file_path}")
+        logger.info(f"File saved at: {file_path}")
         with open(file_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
@@ -192,7 +200,7 @@ def process_audio_from_url(url):
         ad_segments = detect_ads(transcription)
         result = cut_out_ads(file_path, ad_segments)
         cache_audio(url, result)  # Store processed file in cache
-        print(f"Processing complete for {url}")
+        logger.info(f"Processing complete for {url}")
 
     except Exception as e:
         print(f"Error processing {url}: {str(e)}")

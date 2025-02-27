@@ -60,18 +60,36 @@ def post_url():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@audio_bp.route('/check_rss', methods=['POST'])
+@audio_bp.route('/request_podcast', methods=['GET'])
+def request_podcast():
+    podcast_url = request.args.get('url')
+    if not podcast_url:
+        return jsonify({"error": "No url provided"}), 400
+    try:
+        mp3_file_path = "test.mp3"
+        return send_file(mp3_file_path, mimetype='audio/mpeg', as_attachment=True, download_name='podcast'), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@audio_bp.route('/upload_rss', methods=['POST'])
 def check_rss():
     if 'file' not in request.files:
         return jsonify({"error": "No file provided"}), 400
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "Empty file"}), 400
+    if 'application/xml' not in file.content_type:
+        return jsonify({"error": "Wrong file format. Expected application/xml"}), 400
     try:
-        tree = ET.parse(file)
-        root = tree.getroot()
-        # urls = [item.find("enclosure").attrib["url"] for item in root.findall("./channel/item") if
-        #         item.find("enclosure") is not None]
+        # Read file content as bytes
+        rss_feed = file.read()
+        # Check for empty file
+        if len(rss_feed) == 0:
+            print("Uploaded file is empty")
+            return jsonify({"error": "Uploaded file is empty"}), 400
+        # Decode bytes to string
+        xml_string = rss_feed.decode('utf-8')
+
+        root = ET.fromstring(xml_string)
+
         urls = []
         for item in root.findall("./channel/item"):
             if item.find("enclosure") is not None:
@@ -79,10 +97,11 @@ def check_rss():
                 if len(urls) == 3:  # Stop after 2
                     break
         print(urls)
-        #Extract URLs from the RSS feed
-        threading.Thread(target=process_urls_in_background, args=(urls,)).start()
+
+        #threading.Thread(target=process_urls_in_background, args=(urls,)).start()
         return "retrieved", 200
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
 
 

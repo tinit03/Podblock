@@ -7,40 +7,40 @@ from dotenv import load_dotenv
 
 load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("small", device="cpu", compute_type="int8")
+model = WhisperModel("tiny", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
 
-def chunk_audio(file_path, chunk_length_ms=240000):
+def chunk_audio(file_path, chunk_length_ms=360000):
     """Splits an audio file into smaller chunks."""
     audio = AudioSegment.from_file(file_path)
-    chunks = [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
-    chunk_files = []
-    for idx, chunk in enumerate(chunks):
-        chunk_filename = f"{file_path}_chunk_{idx}.mp3"
-        chunk.export(chunk_filename, format="mp3")
-        chunk_files.append(chunk_filename)
-    return chunk_files
+    chunks = [(audio[i:i + chunk_length_ms], len(audio[i:i + chunk_length_ms]) / 1000)
+              for i in range(0, len(audio), chunk_length_ms)]
+    return chunks  # Returns chunks in memory instead of saving files
 
 
 def transcribe(audio_name):
     try:
         audio = AudioSegment.from_file(audio_name)  # Access the audio
         duration = audio.duration_seconds
-        if duration < 240:  # Less than 4 minutes (240 seconds)
-            print("Audio file is less than 4 minutes, skipping chunking.")
-            chunk_files = [audio_name]  # No chunking, just use the original file
+        if duration < 360:  # Less than 6 minutes (360 seconds)
+            print("Audio file is less than 6 minutes, skipping chunking.")
+            chunk_files = [(audio_name, duration)]  # No chunking, just use the original file
         else:
-            # Split the audio file into chunks if it's longer than 4 minutes
+            # Split the audio file into chunks if it's longer than 6
             chunk_files = chunk_audio(audio_name)
         total_duration = 0  # This variable is used to track the total duration of the chunks
+        all_transcriptions = []
 
+        for i, (chunk, chunk_duration) in enumerate(chunk_files):
+            print(f"[INFO] Processing chunk {i+1}/{len(chunk_files)} - Duration: {chunk_duration:.2f} seconds")
 
-        for chunk_file in chunk_files:
-            segments, _ = batched_model.transcribe(chunk_file, word_timestamps=True, batch_size=8)
-
+            buffer = BytesIO()
+            chunk.export(buffer, format="mp3")
+            buffer.seek(0)
+            segments, _ = batched_model.transcribe(buffer, word_timestamps=True, batch_size=8)
             # Extract word-level timestamps
             word_timestamps = [
                 {
@@ -51,27 +51,33 @@ def transcribe(audio_name):
                 for segment in segments
                 for word in segment.words
             ]
-            total_duration += AudioSegment.from_file(chunk_file).duration_seconds
-
-            for segment in segments:
-                print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
             # Format the data to send to ChatGPT
             words_with_timestamps = "\n".join(
                 [f"[{w['start']}-{w['end']}] {w['text']}" for w in word_timestamps]
             )
-            return words_with_timestamps
+            all_transcriptions.append(words_with_timestamps)
+            print(f"[INFO] Finished transcribing chunk {i+1}/{len(chunk_files)}")
+
+            total_duration += chunk_duration
+
+        print(f"[INFO] Transcription complete for {audio_name}")
+        return "\n".join(all_transcriptions)
     except Exception as e:
-        return e
+        return str(e)
 
 
 def detect_ads(words):
     completion = \
         client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a system that detects ads in audio transcriptions. Based on the word-level timestamps provided, determine the start and end times of any ad segments. For each ad segment, provide a 5-word summary of the ad. Return the start and end times for each ad segment in this format start:,end:.(e.g., start: 13.12, end:13.2), followed by a 5-word summary (e.g. summary:'Ad about buying light food'). If no ad is found, return 'No ad detected.'"
+                    "content": "You are a system that detects ads in audio transcriptions. "
+                               "Based on the word-level timestamps provided, determine the start and end times of any ad segments. "
+                               "For each ad segment, provide a 5-word summary of the ad. "
+                               "Provide ad segments in the format: start: <time>, end: <time>, summary: '<summary>'. "
+                               "If no ad is found, return 'No ad detected.'"
                 },
                 {
                     "role": "user",
@@ -84,19 +90,8 @@ def detect_ads(words):
 
     print(classification)
     pattern = r"start:\s*([\d.]+).*?end:\s*([\d.]+).*?summary:\s*['\"]?([^'\"]+)['\"]?"
-    matches = re.findall(pattern, classification, re.DOTALL)
-
-    for match in matches:
-        try:
-            start = float(match[0])  # Extract start time
-            end = float(match[1])  # Extract end time
-            summary = match[2].strip()  # Extract summary text
-
-            segment = {"start": start, "end": end, "summary": summary}
-            ad_segments.append(segment)
-        except ValueError:
-            continue  # Skip if extraction fails
-
+    ad_segments = [{"start": float(m[0]), "end": float(m[1]), "summary": m[2].strip()} for m in
+                   re.findall(pattern, classification)]
     print(ad_segments)
     if ad_segments:
         return ad_segments

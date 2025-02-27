@@ -1,3 +1,7 @@
+import concurrent.futures
+from io import BytesIO
+
+import requests
 from pydub import AudioSegment
 import os
 from faster_whisper import WhisperModel, BatchedInferencePipeline
@@ -102,12 +106,10 @@ def detect_ads(words):
     ad_segments = [{"start": float(m[0]), "end": float(m[1]), "summary": m[2].strip()} for m in
                    re.findall(pattern, classification)]
     print(ad_segments)
-    if ad_segments:
-        return ad_segments
-    else:
-        return {
-            "ad_detection": "No ad detected"
-        }
+    return ad_segments
+
+
+
 
 
 def cut_out_ads(audio_name, ad_segments):

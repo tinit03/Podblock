@@ -111,61 +111,49 @@ def detect_ads(words):
 
 
 def cut_out_ads(audio_name, ad_segments):
-    """Removes ad segments from the audio file with special handling for edge cases."""
+    """Removes ad segments from the audio file with optimized processing."""
+    if not ad_segments:
+        print("There are no ads.")
+        return audio_name
+
     # Load the original audio file
     audio = AudioSegment.from_file(audio_name)
     total_duration = len(audio)  # Get total duration in milliseconds
+    # Ensure ad segments are sorted
+    ad_segments.sort(key=lambda x: x["start"])
 
-    # Sort ad segments by start time
-    ad_segments = sorted(ad_segments, key=lambda x: x["start"])
-
-    # Initialize a list to hold the non-ad sections
-    non_ad_sections = []
-    previous_end = 0
-
-    # Process each ad segment with special handling
-    adjusted_ad_segments = []
-    for i, segment in enumerate(ad_segments):
+    # Merge close ad segments (≤ 5 seconds apart)
+    merged_ads = []
+    for segment in ad_segments:
         start, end = segment["start"] * 1000, segment["end"] * 1000  # Convert to milliseconds
 
-        # **Edge Case 1: Remove an extra 1 second for ads in the first 5 seconds**
+        # Edge Case 1: Adjust ads in the first 5 seconds
         if start <= 5000:
-            start = max(0, start - 1000)  # Ensure start is not negative
+            start = max(0, start - 1000)
 
-        # **Edge Case 2: Merge close ad segments (less than 5 seconds apart)**
-        if i > 0:
-            prev_end = adjusted_ad_segments[-1]["end"]  # End of the last processed ad
-            if start - prev_end <= 5000:  # If the gap is ≤ 5 seconds, merge them
-                adjusted_ad_segments[-1]["end"] = max(end,
-                                                      prev_end)  # Extend the last segment instead of adding a new one
-                continue
+        # Edge Case 2: Merge close ads
+        if merged_ads and start - merged_ads[-1]["end"] <= 5000:
+            merged_ads[-1]["end"] = max(merged_ads[-1]["end"], end)
+        else:
+            merged_ads.append({"start": start, "end": end})
 
-        # **Edge Case 3: Remove everything to the end if ad is near the end**
-        if end >= total_duration - 10000:  # If the ad ends in the last 10 seconds
-            adjusted_ad_segments.append({"start": start, "end": total_duration})
-            break
+    # Edge Case 3: Remove everything from the last ad if it's near the end
+    if merged_ads and merged_ads[-1]["end"] >= total_duration - 10000:
+        merged_ads[-1]["end"] = total_duration
 
-        adjusted_ad_segments.append({"start": start, "end": end})
+    # Extract non-ad sections
+    previous_end = 0
+    non_ad_sections = [audio[previous_end:start] for start, end in [(ad["start"], ad["end"]) for ad in merged_ads] if
+                       start > previous_end]
 
-    # Iterate through adjusted ad segments and remove them
-    for segment in adjusted_ad_segments:
-        start, end = segment["start"], segment["end"]
+    # Add remaining audio after last ad
+    if merged_ads and merged_ads[-1]["end"] < total_duration:
+        non_ad_sections.append(audio[merged_ads[-1]["end"]:])
 
-        # Extract the part of the audio before the ad
-        if start > previous_end:
-            non_ad_sections.append(audio[previous_end:start])
+    # Concatenate non-ad sections
+    new_audio = sum(non_ad_sections, AudioSegment.silent(duration=0))  # Avoids sum([]) error
 
-        # Update the previous end to be after the ad
-        previous_end = end
-
-    # Add any remaining audio after the last ad
-    if previous_end < total_duration:
-        non_ad_sections.append(audio[previous_end:])
-
-    # Concatenate the non-ad sections together
-    new_audio = sum(non_ad_sections)
-
-    # Save the new audio without the ads
+    # Save the new audio file
     new_audio_path = f"{audio_name}_no_ads.mp3"
     new_audio.export(new_audio_path, format="mp3")
     os.remove(audio_name)

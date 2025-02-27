@@ -1,5 +1,6 @@
+import threading
 import requests
-from audio_processing import cut_out_ads, detect_ads, transcribe
+from audio_processing import cut_out_ads, detect_ads, transcribe, process_urls_in_background
 from file_helpers import allowed_file, save_file
 from flask import Blueprint, request, jsonify, send_file
 import xml.etree.ElementTree as ET

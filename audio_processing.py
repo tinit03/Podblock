@@ -1,9 +1,18 @@
 from pydub import AudioSegment
 import os
 from faster_whisper import WhisperModel, BatchedInferencePipeline
+from urllib.parse import urlparse, unquote
 import openai
 import re
 from dotenv import load_dotenv
+from cache_helpers import cache, cache_audio
+from file_helpers import allowed_file, save_file
+ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
+def extract_mp3_name(url):
+    """Extracts the MP3 filename from the given URL."""
+    parsed_url = urlparse(url)
+    filename = os.path.basename(parsed_url.path)  # Extracts "NPR3418472865.mp3"
+    return unquote(filename)  # Decode any URL-encoded characters
 
 load_dotenv("api.env")
 # Initialize the whisper model

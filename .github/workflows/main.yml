@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Clone repo to pipeline
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download python
         uses: actions/setup-python@v4
@@ -33,13 +33,16 @@ jobs:
         run: echo "No tests available, skipping this step." # Bare erstatt med pytest inntil vider
       
       - name: Build Docker image
-        run: docker build -t podblock:latest .
+        run: docker build --progress=plain -t podblock:latest .
 
       - name: Save Docker image
         run: docker save podblock:latest -o podblock.tar
-
+        
+      - name: Verify Docker image file
+        run: ls -lh podblock.tar  
+      
       - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: podblock-docker-image
           path: podblock.tar

@@ -14,7 +14,9 @@ def extract_name(url):
     """Extracts the filename from the given URL."""
     parsed_url = urlparse(url)
     filename = os.path.basename(parsed_url.path)  # Extracts "NPR3418472865.mp3"
-    return unquote(filename)  # Decode any URL-encoded characters
+    file_extension = os.path.splitext(filename)[1][1:].lower()  # Extract extension, remove dot
+    return file_extension  # Return only "mp3", "wav", etc.
+
 
 def extract_title(url):
     """Extracts the title from the given URL."""

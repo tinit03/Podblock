@@ -1,4 +1,5 @@
 import os
+import re
 
 
 def allowed_file(filename, allowed_extensions):
@@ -10,6 +11,9 @@ def save_file(filename, upload_folder):
     """Save the uploaded file to the specified folder."""
     file_path = os.path.join(upload_folder, filename)
     return file_path
+def sanitize_filename(filename):
+    """Removes or replaces illegal characters from filenames."""
+    return re.sub(r'[<>:"/\\|?*]', '_', filename)  # Replace invalid characters with "_"
 
 # def download_file(url, upload_folder):
 #     """Download a file from a URL and save it to the specified folder."""

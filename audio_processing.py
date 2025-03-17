@@ -10,7 +10,7 @@ import openai
 import re
 from dotenv import load_dotenv
 from helpers.cache_helpers import cache, initiate_key, cache_audio, cached_rss_url, cached_source_url
-from helpers.file_helpers import allowed_file, save_file
+from helpers.file_helpers import allowed_file, save_file, sanitize_filename
 import logging
 from helpers.url_helpers import normalize_url, generate_cache_url, extract_name, extract_title
 
@@ -182,10 +182,10 @@ def process_urls_in_background(rss_urls):
     """Runs the URL processing in the background."""
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for rss_url in rss_urls:
-            if not cached_rss_url(rss_url):  # Process only if not in cache
-                source_url, file_path = fetch_and_save_audio(rss_url)
+            if not cached_rss_url(rss_url[1]):  # Process only if not in cache
+                source_url, file_path = fetch_and_save_audio(rss_url[0],rss_url[1])
                 if source_url and file_path:
-                    cache_url = generate_cache_url(rss_url, normalize_url(source_url))
+                    cache_url = generate_cache_url(rss_url[1], normalize_url(source_url))
                     initiate_key(cache_url)
                     executor.submit(process_audio_from_file, file_path, cache_url)
                 else:
@@ -194,13 +194,13 @@ def process_urls_in_background(rss_urls):
                 logger.info(f"{rss_url} is already in the cache. Skip process")
 
 
-def fetch_and_save_audio(url):
+def fetch_and_save_audio(title, url):
     """Fetch and save audiofile from url."""
     try:
         response = requests.get(url, stream=True)
         if response.status_code == 200:
-            file_name = extract_name(url)
-            if not extract_name(file_name) not in ALLOWED_EXTENSIONS:
+            file_name = sanitize_filename(title.replace(" ", "_")) + ".mp3"
+            if extract_name(url) not in ALLOWED_EXTENSIONS:
                 logger.error(f"File format not allowed: {file_name}")
                 return None, None
             file_path = save_file(file_name, './uploads')
@@ -232,7 +232,7 @@ def process_audio_from_file(file_path, cache_url):
 
         cache_audio(cache_url, result)  # Store processed file in cache
 
-        logger.info(f"Processing complete for {url}")
+        logger.info(f"Processing complete for {cache_url}")
 
     except Exception as e:
-        print(f"Error processing {url}: {str(e)}")
+        print(f"Error processing {cache_url}: {str(e)}")

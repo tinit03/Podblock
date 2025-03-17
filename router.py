@@ -117,8 +117,9 @@ def check_rss():
 
         urls = []
         for item in root.findall("./channel/item"):
-            if item.find("enclosure") is not None:
-                urls.append(item.find("enclosure").attrib["url"])
+            if item.find("enclosure") or item.find("title") is not None:
+                print(item.find("title").text)
+                urls.append((item.find("title").text,item.find("enclosure").attrib["url"]))
                 if len(urls) == 1:  # Stop after 2
                     break
         logger.info(f"Retrieved the lists of urls:{urls}")

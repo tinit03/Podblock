@@ -1,7 +1,11 @@
 import threading
 import requests
-from audio_processing import cut_out_ads, detect_ads, transcribe, process_urls_in_background
-from file_helpers import allowed_file, save_file
+from audio_processing import remove_ads, detect_ads, transcribe, process_urls_in_background
+from helpers.file_helpers import allowed_file, save_file
+from helpers.cache_helpers import initiate_key, cached_rss_url, cached_source_url, retrieve_audio
+from helpers.url_helpers import normalize_url
+from flask import Response
+
 from flask import Blueprint, request, jsonify, send_file
 import xml.etree.ElementTree as ET
 import logging
@@ -10,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 audio_bp = Blueprint('audio', __name__)
+
 
 @audio_bp.route('/upload', methods=['POST'])
 def upload_audio():
@@ -31,7 +36,7 @@ def upload_audio():
         # Process the uploaded audio file
         transcription = transcribe(file_path)
         ad_segments = detect_ads(transcription)
-        result = cut_out_ads(file_path, ad_segments)
+        result = remove_ads(file_path, ad_segments)
         return send_file(result, as_attachment=True)
     except Exception as e:
         return f"An error occured, {str(e)}", 500
@@ -57,10 +62,11 @@ def post_url():
         # Process the downloaded audio file
         transcription = transcribe(file_path)
         ad_segments = detect_ads(transcription)
-        result = cut_out_ads(file_path, ad_segments)
+        result = remove_ads(file_path, ad_segments)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @audio_bp.route('/request_podcast', methods=['GET'])
 def request_podcast():
@@ -68,10 +74,27 @@ def request_podcast():
     if not podcast_url:
         return jsonify({"error": "No url provided"}), 400
     try:
-        mp3_file_path = "test.mp3"
-        return send_file(mp3_file_path, mimetype='audio/mpeg', as_attachment=True, download_name='podcast'), 200
+        podcast = retrieve_audio(normalize_url(podcast_url))
+        if podcast:
+            if podcast == "INIT":
+                mp3_file_path = "test.mp3"
+                logger.info("Returning test mp3 file")
+            else:
+                mp3_file_path = podcast
+                logger.info("Returning real mp3 file")
+
+            logger.info(mp3_file_path)
+
+            with open(mp3_file_path, "rb") as f:
+                audio_bytes = f.read()
+            return Response(audio_bytes, mimetype='audio/mpeg')
+        else:
+            return jsonify({"error": "podcast is not processed"}), 400
+
     except Exception as e:
+        logger.error(e)
         return jsonify({"error": str(e)}), 500
+
 
 @audio_bp.route('/upload_rss', methods=['POST'])
 def check_rss():
@@ -96,7 +119,7 @@ def check_rss():
         for item in root.findall("./channel/item"):
             if item.find("enclosure") is not None:
                 urls.append(item.find("enclosure").attrib["url"])
-                if len(urls) == 3:  # Stop after 2
+                if len(urls) == 1:  # Stop after 2
                     break
         logger.info(f"Retrieved the lists of urls:{urls}")
 
@@ -105,6 +128,21 @@ def check_rss():
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
+
+
+@audio_bp.route('/cache_test', methods=['POST'])
+def cache_test():
+    key = "hei::rss"
+    source_url = "nei"
+    rss_url = "nei"
+
+    initiate_key(key)
+
+    print(cached_source_url(source_url))
+    print(cached_rss_url(rss_url))
+
+    return "complete", 200
+
 
 
 # @audio_bp.route('/upload_from_extension', methods=['POST'])

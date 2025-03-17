@@ -18,9 +18,9 @@ def extract_name(url):
     return file_extension  # Return only "mp3", "wav", etc.
 
 
-def extract_title(url):
-    """Extracts the title from the given URL."""
-    base, ext = os.path.splitext(url)
+def extract_title(path):
+    """Extracts the title from the directory path."""
+    base, ext = os.path.splitext(path)
     return base
 
 def extract_extension(url):

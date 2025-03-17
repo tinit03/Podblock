@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo to pipeline
+        uses: actions/checkout@v3
+
+      - name: Download python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping dependency installation."
+          fi
+
+      - name: Run tests
+        run: echo "No tests available, skipping this step." # Bare erstatt med pytest inntil vider
+      
+      - name: Build Docker image
+        run: docker build -t podblock:latest .
+
+      - name: Save Docker image
+        run: docker save podblock:latest -o podblock.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: podblock-docker-image
+          path: podblock.tar

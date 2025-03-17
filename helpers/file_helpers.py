@@ -9,7 +9,6 @@ def allowed_file(filename, allowed_extensions):
 def save_file(filename, upload_folder):
     """Save the uploaded file to the specified folder."""
     file_path = os.path.join(upload_folder, filename)
-    #file.save(file_path)
     return file_path
 
 # def download_file(url, upload_folder):

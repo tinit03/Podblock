@@ -1,0 +1,28 @@
+from urllib.parse import urlparse, unquote, urlunparse
+import os
+
+
+def normalize_url(url):
+    return url.split(".mp3")[0] + ".mp3"
+
+
+def generate_cache_url(rss_url, source_url):
+    return f"{rss_url}::{source_url}"
+
+
+def extract_name(url):
+    """Extracts the filename from the given URL."""
+    parsed_url = urlparse(url)
+    filename = os.path.basename(parsed_url.path)  # Extracts "NPR3418472865.mp3"
+    return unquote(filename)  # Decode any URL-encoded characters
+
+def extract_title(url):
+    """Extracts the title from the given URL."""
+    base, ext = os.path.splitext(url)
+    return base
+
+def extract_extension(url):
+    """Extracts the extension from the given URL."""
+    return os.path.splitext(url)[1].lower()
+
+

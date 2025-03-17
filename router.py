@@ -134,8 +134,8 @@ def check_rss():
 @audio_bp.route('/cache_test', methods=['POST'])
 def cache_test():
     key = "hei::rss"
-    source_url = "nei"
-    rss_url = "nei"
+    source_url = "rss"
+    rss_url = "hei"
 
     initiate_key(key)
 

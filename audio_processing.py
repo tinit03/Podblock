@@ -110,7 +110,7 @@ def detect_ads(transcript):
         logger.info(ad_segments)
         return ad_segments
 
-    except Expeception as e:
+    except Exception as e:
         logger.error("Error in detect_ads (attempt %d/%d): %s", attempt + 1, retries, str(e))
         raise
 
@@ -177,9 +177,10 @@ def remove_ads(file_path, ad_segments):
 
     duration = len(new_audio)
     logger.error(duration)
-
+    logger.info(f"filepath: {file_path}")
     # Save the new audio file
     file_title = extract_title(file_path)
+    print(f"file_title={file_title}")
     new_audio_path = f"{file_title}_no_ads.mp3"
     new_audio.export(new_audio_path, format="mp3")
     return new_audio_path

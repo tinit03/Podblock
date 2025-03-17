@@ -77,7 +77,7 @@ def request_podcast():
         podcast = retrieve_audio(normalize_url(podcast_url))
         if podcast:
             if podcast == "INIT":
-                mp3_file_path = "test.mp3"
+                mp3_file_path = "resources/test.mp3"
                 logger.info("Returning test mp3 file")
             else:
                 mp3_file_path = podcast
@@ -119,7 +119,7 @@ def check_rss():
         for item in root.findall("./channel/item"):
             if item.find("enclosure") is not None:
                 urls.append(item.find("enclosure").attrib["url"])
-                if len(urls) == 1:  # Stop after 2
+                if len(urls) == 2:  # Stop after 2
                     break
         logger.info(f"Retrieved the lists of urls:{urls}")
 

@@ -170,7 +170,14 @@ def remove_ads(file_path, ad_segments):
     duration = len(new_audio)
     logger.error(duration)
 
+    intro = AudioSegment.from_file('resources/intro.mp3')
+
+    new_audio = intro + new_audio
     new_audio = new_audio.set_frame_rate(audio.frame_rate)
+
+    duration = len(new_audio)
+    logger.error(duration)
+
     # Save the new audio file
     file_title = extract_title(file_path)
     new_audio_path = f"{file_title}_no_ads.mp3"

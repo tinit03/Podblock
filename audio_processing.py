@@ -1,4 +1,6 @@
 import concurrent.futures
+import io
+import threading
 from io import BytesIO
 
 import requests
@@ -9,10 +11,12 @@ from urllib.parse import urlparse, unquote
 import openai
 import re
 from dotenv import load_dotenv
-from helpers.cache_helpers import cache, initiate_key, cache_audio, cached_rss_url, cached_source_url
+from helpers.cache_helpers import (cache, initiate_key, cache_audio_segment, cached_rss_url, cached_source_url,
+                                   change_status_to_complete, download_audio_cache_key)
 from helpers.file_helpers import allowed_file, save_file, sanitize_filename
+from helpers.audio_helpers import convert_audio_segment_to_bytes
 import logging
-from helpers.url_helpers import normalize_url, generate_cache_url, extract_name, extract_title
+from helpers.url_helpers import normalize_url, generate_cache_url, extract_name, extract_title, extract_source_url
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -24,64 +28,50 @@ ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
 load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("small.en", device="cpu", compute_type="int8")
+model = WhisperModel("tiny.en", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
+intro = AudioSegment.from_file('resources/intro.mp3')
 
-def chunk_audio(file_path, chunk_length_ms=360000):
+
+def chunk_audio(audio_segment, chunk_duration_seconds=120, chunk_duration_ms=120000):
     """Splits an audio file into smaller chunks."""
-    audio = AudioSegment.from_file(file_path)
-    chunks = [(audio[i:i + chunk_length_ms], len(audio[i:i + chunk_length_ms]) / 1000)
-              for i in range(0, len(audio), chunk_length_ms)]
-    return chunks  # Returns chunks in memory instead of saving files
+    audio = audio_segment
+    duration_seconds = audio.duration_seconds
 
-
-def transcribe(audio_name):
-    audio = AudioSegment.from_file(audio_name)  # Access the audio
-    duration = audio.duration_seconds
-    if duration < 360:  # Less than 6 minutes (360 seconds)
-        logger.info("Audio file is less than 6 minutes, skipping chunking.")
-        chunk_files = [(audio_name, duration)]  # No chunking, just use the original file
+    if duration_seconds <= chunk_duration_seconds:
+        chunks = [(audio, duration_seconds)]
     else:
-        # Split the audio file into chunks if it's longer than 6
-        chunk_files = chunk_audio(audio_name)
-    total_duration = 0  # This variable is used to track the total duration of the chunks
-    all_transcriptions = []
+        chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
 
-    for i, (chunk, chunk_duration) in enumerate(chunk_files):
-        logger.info(f"[INFO] Processing chunk {i+1}/{len(chunk_files)} - Duration: {chunk_duration:.2f} seconds")
+    return chunks, chunk_duration_seconds
 
-        buffer = BytesIO()
-        chunk.export(buffer, format="mp3")
-        buffer.seek(0)
-        segments, _ = batched_model.transcribe(buffer, word_timestamps=True, batch_size=8)
-        # Extract word-level timestamps
-        word_timestamps = [
-            {
-                "start": word.start + total_duration,
-                "end": word.end + total_duration,
-                "text": word.word
-            }
-            for segment in segments
-            for word in segment.words
-        ]
-        # Format the data to send to ChatGPT
-        words_with_timestamps = "\n".join(
-            [f"[{w['start']}-{w['end']}] {w['text']}" for w in word_timestamps]
-        )
-        all_transcriptions.append(words_with_timestamps)
-        logger.info(f"[INFO] Finished transcribing chunk {i+1}/{len(chunk_files)}")
 
-        total_duration += chunk_duration
-
-    logger.info(f"[INFO] Transcription complete for {audio_name}")
-    return "\n".join(all_transcriptions)
+def transcribe_audio(audio_segment):
+    buffer = BytesIO()
+    audio_segment.export(buffer, format="mp3")
+    buffer.seek(0)
+    segments, _ = batched_model.transcribe(buffer, word_timestamps=True, batch_size=8)
+    # Extract word-level timestamps
+    transcription = [
+        {
+            "start": word.start,
+            "end": word.end,
+            "text": word.word
+        }
+        for segment in segments
+        for word in segment.words
+    ]
+    # Format the data to send to ChatGPT
+    formatted_transcription = "\n".join(
+        [f"[{w['start']}-{w['end']}] {w['text']}" for w in transcription]
+    )
+    return formatted_transcription
 
 
 def detect_ads(transcript):
-
     try:
         completion = \
             client.chat.completions.create(
@@ -107,7 +97,7 @@ def detect_ads(transcript):
         pattern = r"start:\s*([\d.]+).*?end:\s*([\d.]+).*?summary:\s*['\"]?([^'\"]+)['\"]?"
         ad_segments = [{"start": float(m[0]), "end": float(m[1]), "summary": m[2].strip()} for m in
                        re.findall(pattern, classification)]
-        logger.info(ad_segments)
+        logger.info(f"Detected ad-segments: {ad_segments}")
         return ad_segments
 
     except Exception as e:
@@ -115,17 +105,13 @@ def detect_ads(transcript):
         raise
 
 
-def remove_ads(file_path, ad_segments):
+def remove_ads(audio, ad_segments):
     """Removes ad segments from the audio file with optimized processing."""
     if not ad_segments:
-        print("There are no ads.")
-        return file_path
+        print("No ads to remove.")
+        return audio
 
-    # Load the original audio file
-    audio = AudioSegment.from_file(file_path)
-    total_duration = len(audio)  # Get total duration in milliseconds
-    logger.error(total_duration)
-    logger.error(audio.frame_rate)
+    total_duration = len(audio)
 
     # Ensure ad segments are sorted
     ad_segments.sort(key=lambda x: x["start"])
@@ -167,80 +153,101 @@ def remove_ads(file_path, ad_segments):
     for segment in non_ad_sections:
         new_audio += segment  # Avoids sum([]) error
 
-    duration = len(new_audio)
-    logger.error(duration)
+    return new_audio
 
-    intro = AudioSegment.from_file('resources/intro.mp3')
 
-    new_audio = intro + new_audio
-    new_audio = new_audio.set_frame_rate(audio.frame_rate)
+def fetch_audio(url):
+    """Fetch and save audiofile from url."""
+    try:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            if extract_name(url) not in ALLOWED_EXTENSIONS:
+                raise Exception(f"The requested file type is not allowed: {file_name}")
+            source_url = response.url
+            buffer = io.BytesIO(response.content)
 
-    duration = len(new_audio)
-    logger.error(duration)
-    logger.info(f"filepath: {file_path}")
-    # Save the new audio file
-    file_title = extract_title(file_path)
-    print(f"file_title={file_title}")
-    new_audio_path = f"{file_title}_no_ads.mp3"
-    new_audio.export(new_audio_path, format="mp3")
-    return new_audio_path
+            audio_segment = AudioSegment.from_file(buffer, format="mp3")
+            return source_url, audio_segment
+        else:
+            raise Exception(f"Failed to fetch file: {url}")
+    except Exception as e:
+        logger.error(f"Error fetching file: {e}")
+
+
+def process_audio(audio_segment, cache_url):
+    """Download and process an audio file."""
+    source_url = extract_source_url(cache_url)
+    try:
+        frame_rate = audio_segment.frame_rate
+
+        chunks, chunk_duration = chunk_audio(audio_segment)
+        logger.info(f"Chunking complete: {source_url}")
+
+        for i,  chunk in enumerate(chunks):
+            transcription = transcribe_audio(chunk)
+            logger.info(f"Transcription complete for chunk {i+1}/{len(chunks)}: {source_url}")
+
+            ad_segments = detect_ads(transcription)
+            logger.info(f"Ad-analysis complete for chunk {i+1}/{len(chunks)}: {source_url}")
+
+            processed_chunk = remove_ads(chunk, ad_segments)
+            logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {source_url}")
+
+            if i == 0:
+                processed_chunk = intro + processed_chunk
+            processed_chunk.set_frame_rate(frame_rate)
+
+            cache_audio_segment(cache_url, processed_chunk)
+            logger.info(f"Caching complete for chunk {i + 1}/{len(chunks)}: {source_url}")
+
+        change_status_to_complete(cache_url)
+        logger.info(f"Processing complete for {source_url}")
+
+    except Exception as e:
+        print(f"Error processing {source_url}: {str(e)}")
 
 
 def process_urls_in_background(rss_urls):
     """Runs the URL processing in the background."""
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for rss_url in rss_urls:
-            if not cached_rss_url(rss_url[1]):  # Process only if not in cache
-                source_url, file_path = fetch_and_save_audio(rss_url[0],rss_url[1])
-                if source_url and file_path:
-                    cache_url = generate_cache_url(rss_url[1], normalize_url(source_url))
+            if not cached_rss_url(rss_url):  # Process only if not in cache
+                try:
+                    source_url, audio_segment = fetch_audio(rss_url)
+                    cache_url = generate_cache_url(rss_url, normalize_url(source_url))
                     initiate_key(cache_url)
-                    executor.submit(process_audio_from_file, file_path, cache_url)
-                else:
-                    logger.error(f"Unable to process audio from {rss_url}")
+                    executor.submit(process_audio, audio_segment, cache_url)
+                except Exception as e:
+                    logger.error(f"Unable to process audio from {rss_url}: {e}")
             else:
                 logger.info(f"{rss_url} is already in the cache. Skip process")
 
 
-def fetch_and_save_audio(title, url):
-    """Fetch and save audiofile from url."""
+def stream_and_process_audio(url):
+    """Stream and process audio from URL"""
     try:
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            file_name = sanitize_filename(title.replace(" ", "_")) + ".mp3"
-            if extract_name(url) not in ALLOWED_EXTENSIONS:
-                logger.error(f"File format not allowed: {file_name}")
-                return None, None
-            file_path = save_file(file_name, './uploads')
-            with open(file_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            source_url = response.url
-            logger.info(f"Original audio saved as {file_path}")
-            return source_url, file_path
-        else:
-            logger.error(f"Failed to fetch file: {url}")
-            return None, None
+        source_url, audio_segment = fetch_audio(url)
+        cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
+        initiate_key(cache_url)
+        threading.Thread(target=process_audio, args=(audio_segment, cache_url)).start()
     except Exception as e:
-        logger.error(f"Error fetching file: {e}")
+        print(f"Error processing {e}")
 
 
-def process_audio_from_file(file_path, cache_url):
-    """Download and process an audio file."""
+def stream_partial_content(url):
     try:
-        logger.info(f"Started processing audio {file_path}")
+        source_url, audio_segment = fetch_audio(url)
+        cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
+        initiate_key(cache_url)
 
-        transcription = transcribe(file_path)    # Transcribe audio
-        logger.info(f"Transcription complete {file_path}")
+        first_segment = audio_segment[120000:]
+        second_segment = audio_segment[:120000]
 
-        ad_segments = detect_ads(transcription)   # Detect ads in transcription
-        logger.info(f"Ad-analysis complete {file_path}")
-        result = remove_ads(file_path, ad_segments)  # Cut ads from audio
-        logger.info(f"Ad-removal complete {file_path}")
-
-        cache_audio(cache_url, result)  # Store processed file in cache
-
-        logger.info(f"Processing complete for {cache_url}")
-
+        transcription = transcribe_audio(first_segment)
+        ad_segments = detect_ads(transcription)
+        new_audio = intro + remove_ads(first_segment, ad_segments)
+        cache_audio_segment(cache_url, new_audio)
+        threading.Thread(target=process_audio, args=(second_segment, cache_url)).start()
+        return convert_audio_segment_to_bytes(new_audio)
     except Exception as e:
-        print(f"Error processing {cache_url}: {str(e)}")
+        print(f"Error processing {e}")

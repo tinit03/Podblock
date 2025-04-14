@@ -11,16 +11,13 @@ def save_file(filename, upload_folder):
     """Save the uploaded file to the specified folder."""
     file_path = os.path.join(upload_folder, filename)
     return file_path
+
+
+def add_intro(audiosegment):
+    """Add an intro to an audio segment."""
+    intro = AudioSegment.from_file('resources/intro.mp3')
+    return intro + audiosegment
+
 def sanitize_filename(filename):
     """Removes or replaces illegal characters from filenames."""
     return re.sub(r'[<>:"/\\|?*]', '_', filename)  # Replace invalid characters with "_"
-
-# def download_file(url, upload_folder):
-#     """Download a file from a URL and save it to the specified folder."""
-#     response = requests.get(url, stream=True)
-#     filename = url.split("/")[-1].split('?')[0]
-#     file_path = os.path.join(upload_folder, filename)
-#     with open(file_path, 'wb') as f:
-#         for chunk in response.iter_content(chunk_size=8192):
-#             f.write(chunk)
-#     return file_path

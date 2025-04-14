@@ -1,6 +1,7 @@
 import io
 import logging
 import time
+from enums.status import AudioStatus
 from flask_caching import Cache
 from helpers.audio_helpers import convert_audio_segment_to_bytes
 
@@ -42,11 +43,11 @@ def cache_audio_segment(key, audio_segment):
 
 
 def change_status_to_complete(key):
-    redis_client.hset(key, "status", "COMPLETE")
+    redis_client.hset(key, "status", AudioStatus.COMPLETE)
 
 
 def change_status_to_processing(key):
-    redis_client.hset(key, "status", "PROCESSING")
+    redis_client.hset(key, "status", AudioStatus.PROCESSING)
 
 
 def retrieve_audio_cache_key(key):

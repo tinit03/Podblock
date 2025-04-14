@@ -28,7 +28,7 @@ ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
 # load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("turbo", device="cpu", compute_type="int8")
+model = WhisperModel("base.en", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
 # api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])

@@ -26,17 +26,16 @@ logger = logging.getLogger(__name__)
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
 
-load_dotenv("api.env")
+# load_dotenv("api.env")
 # Initialize the whisper model
 model = WhisperModel("tiny.en", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
-
+# api_key = os.getenv('OPENAI_API_KEY')
+client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')
 
 
-def chunk_audio(audio_segment, chunk_duration_seconds=120, chunk_duration_ms=120000):
+def chunk_audio(audio_segment, chunk_duration_seconds=240, chunk_duration_ms=240000):
     """Splits an audio file into smaller chunks."""
     audio = audio_segment
     duration_seconds = audio.duration_seconds
@@ -72,6 +71,7 @@ def transcribe_audio(audio_segment):
 
 
 def detect_ads(transcript):
+    logger.info('Trying to detect ads')
     try:
         completion = \
             client.chat.completions.create(

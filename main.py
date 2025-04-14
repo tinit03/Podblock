@@ -9,7 +9,7 @@ import redis
 app = Flask(__name__)
 app.config.from_object(Config)
 app.register_blueprint(audio_bp)
-redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
+redis_client = redis.Redis(host='redis', port=6379, db=0)
 setup_cache(app, redis_client)
 CORS(app)
 if __name__ == '__main__':

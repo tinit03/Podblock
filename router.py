@@ -1,7 +1,10 @@
 import threading
 import requests
-from audio_processing import (remove_ads, detect_ads, process_urls_in_background, process_audio, stream_and_process_audio,
-                              stream_partial_content)
+from enums.status import AudioStatus
+
+from audio_processing import (remove_ads, detect_ads, process_urls_in_background, process_audio,
+                              stream_and_process_audio, stream_partial_content)
+
 from helpers.file_helpers import allowed_file, save_file
 from helpers.cache_helpers import (initiate_key, cached_rss_url, cached_source_url, retrieve_status_and_audio_source_url,
                                    poll_audio_beginning, retrieve_status_source_url, poll_and_stream_audio)
@@ -20,6 +23,11 @@ audio_bp = Blueprint('audio', __name__)
 
 @audio_bp.route('/request_podcast', methods=['GET'])
 def request_podcast():
+    """
+    This route is used to request podcasts from the server. If the podcast is processed,
+    this route will return the entire podcast. If else the route will initiate processing of the podcast
+    and redirect the client to another endpoint for streaming while the podcast is processing.
+    """
     podcast_url = request.args.get('url')
     if not podcast_url:
         return jsonify({"error": "No url provided"}), 400
@@ -34,10 +42,10 @@ def request_podcast():
 
         status, podcast = result
 
-        if status == "PROCESSING":
+        if status == AudioStatus.PROCESSING:
             return "Redirect", 302
 
-        if podcast and status == "COMPLETE":
+        if podcast and status == AudioStatus.COMPLETE:
             return podcast, 200
 
         return jsonify({"error": "Unexpected state"}), 500
@@ -77,7 +85,7 @@ def stream_podcast():
 
 
 @audio_bp.route('/stream_podcast', methods=['GET'])
-def stream_podcast():
+def stream_while_processing_podcast():
     podcast_url = request.args.get('url')
     if not podcast_url:
         return jsonify({"error": "No url provided"}), 400
@@ -106,6 +114,11 @@ def stream_podcast():
 
 @audio_bp.route('/upload_rss', methods=['POST'])
 def check_rss():
+    """
+        This route is used to upload an RSS feed to the server. The server will look at the three most recent urls
+        in the feed and see if they are already process and cached.
+    """
+
     if 'file' not in request.files:
         return jsonify({"error": "No file provided"}), 400
     file = request.files['file']

@@ -43,11 +43,11 @@ def cache_audio_segment(key, audio_segment):
 
 
 def change_status_to_complete(key):
-    redis_client.hset(key, "status", AudioStatus.COMPLETE)
+    redis_client.hset(key, "status", AudioStatus.Complete.value)
 
 
 def change_status_to_processing(key):
-    redis_client.hset(key, "status", AudioStatus.PROCESSING)
+    redis_client.hset(key, "status", AudioStatus.Processing.value)
 
 
 def retrieve_audio_cache_key(key):

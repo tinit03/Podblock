@@ -2,7 +2,7 @@ import concurrent.futures
 import io
 import threading
 from io import BytesIO
-
+import gc
 import requests
 from pydub import AudioSegment
 import os
@@ -18,6 +18,9 @@ from helpers.audio_helpers import convert_audio_segment_to_bytes
 import logging
 from helpers.url_helpers import normalize_url, generate_cache_url, extract_name, extract_title, extract_source_url
 
+import torch
+torch.set_num_threads(64)
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -26,11 +29,10 @@ logger = logging.getLogger(__name__)
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
 
-# load_dotenv("api.env")
+load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("base.en", device="cpu", compute_type="int8")
-batched_model = BatchedInferencePipeline(model=model)
-# api_key = os.getenv('OPENAI_API_KEY')
+model = WhisperModel("base.en", device="cpu", compute_type="int8", num_workers=32)
+batched_model = BatchedInferencePipeline(model=model, batch_size=16)
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')
 
@@ -50,9 +52,9 @@ def chunk_audio(audio_segment, chunk_duration_seconds=240, chunk_duration_ms=240
 
 def transcribe_audio(audio_segment):
     buffer = BytesIO()
-    audio_segment.export(buffer, format="mp3")
+    audio_segment.export(buffer, format="wav")
     buffer.seek(0)
-    segments, _ = batched_model.transcribe(buffer, word_timestamps=True, batch_size=8)
+    segments, _ = batched_model.transcribe(buffer, word_timestamps=True, batch_size=16)
     # Extract word-level timestamps
     transcription = [
         {
@@ -176,6 +178,7 @@ def fetch_audio(url):
 
 def process_audio(audio_segment, cache_url):
     """Download and process an audio file."""
+    gc.collect()
     source_url = extract_source_url(cache_url)
     try:
         frame_rate = audio_segment.frame_rate
@@ -209,7 +212,7 @@ def process_audio(audio_segment, cache_url):
 
 def process_urls_in_background(rss_urls):
     """Runs the URL processing in the background."""
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
         for rss_url in rss_urls:
             if not cached_rss_url(rss_url):  # Process only if not in cache
                 try:

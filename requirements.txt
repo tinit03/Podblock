@@ -1,3 +1,5 @@
+numpy==1.24.3
+torch==2.1.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
 Flask
 Flask-Cors
 Flask-Caching
@@ -7,3 +9,4 @@ pydub
 faster-whisper
 openai
 python-dotenv
+torch

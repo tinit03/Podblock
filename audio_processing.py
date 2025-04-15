@@ -31,7 +31,7 @@ ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
 load_dotenv("api.env")
 # Initialize the whisper model
-model = WhisperModel("base.en", device="cpu", compute_type="int8", num_workers=32)
+model = WhisperModel("tiny.en", device="cpu", compute_type="int8", num_workers=32)
 batched_model = BatchedInferencePipeline(model=model)
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')

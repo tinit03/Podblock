@@ -1,0 +1,15 @@
+numpy==1.24.3
+torch==2.1.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+Flask
+Flask-Cors
+Flask-Caching
+redis
+requests
+pydub
+faster-whisper
+openai
+python-dotenv
+torch
+celery
+flower

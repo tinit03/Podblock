@@ -61,7 +61,7 @@ def request_podcast():
         if status is None:
             #podcast = fetch_audio_bytes(podcast_url)
             def generate():
-                with open("your_podcast.mp3", "rb") as f:
+                with open("test.mp3", "rb") as f:
                     chunk_size = 1024 * 64  # 64 KB per chunk
                     while True:
                         chunk = f.read(chunk_size)

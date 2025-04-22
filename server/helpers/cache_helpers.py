@@ -112,12 +112,11 @@ def retrieve_status_rss_url(rss_url):
 
 
 def retrieve_audio_rss_url(rss_url):
-    """Retrieve status and audio from cache with rss-url."""
+    """Retrieve audio from cache with rss-url."""
     if cached_rss_url(rss_url):
         key = next(redis_client.scan_iter(f"{rss_url}::*"))
-        status = redis_client.hget(key, "status")
         audio_bytes = redis_client.hget(key, "audio")
-        return status, audio_bytes
+        return audio_bytes
     else:
         logging.info(f"Audio does not exist in cache {rss_url}")
         return None

@@ -63,6 +63,7 @@ def request_podcast():
             return podcast, 200 # Streaming is not implemented yet, returning original podcast
 
         podcast = retrieve_audio_rss_url(podcast_url)
+
         # If status is processing, stream podcast.
         if status == AudioStatus.Processing:
             podcast = fetch_audio_bytes(podcast_url)

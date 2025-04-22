@@ -211,8 +211,7 @@ def process_audio(audio_segment, cache_url):
                 processed_chunk = intro + processed_chunk
             processed_chunk.set_frame_rate(frame_rate)
 
-            audio_bytes = convert_audio_segment_to_bytes(processed_chunk)
-            cache_audio_segment(cache_url, audio_bytes)
+            cache_audio_segment(cache_url, processed_chunk)
             logger.info(f"Caching complete for chunk {i + 1}/{len(chunks)}:{source_url}")
 
         change_status_to_complete(cache_url)

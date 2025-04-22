@@ -7,7 +7,7 @@ import re
 from enums.status import AudioStatus
 from tasks import process_urls_task
 
-from audio_processing import fetch_audio
+from audio_processing import fetch_audio_segment, fetch_audio_bytes
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
 from helpers.cache_helpers import retrieve_audio_rss_url, retrieve_status_rss_url, poll_and_stream_audio
@@ -37,7 +37,7 @@ def check_rss():
         return jsonify({"error": "Wrong file format. Expected application/xml"}), 400
     try:
         rss_feed = file.read()
-        urls = extract_urls_from_rss(rss_feed, limit=1) #Number of urls to process
+        urls = extract_urls_from_rss(rss_feed, limit=3) #Number of urls to process
         logger.info(f"Retrieved the lists of urls:{urls}")
         process_urls_task.delay(urls)
         return "retrieved", 200
@@ -59,14 +59,14 @@ def request_podcast():
         status = retrieve_status_rss_url(podcast_url)
         # If status is none, process and stream podcast.
         if status is None:
-            _, podcast = fetch_audio(podcast_url)
-            return podcast, 200 #Streaming is not implemented yet, returning original podcast
+            _, podcast = fetch_audio_bytes(podcast_url)
+            return podcast, 200 # Streaming is not implemented yet, returning original podcast
 
         podcast = retrieve_audio_rss_url(podcast_url)
         # If status is processing, stream podcast.
         if status == AudioStatus.Processing:
-            _, podcast = fetch_audio(podcast_url)
-            return podcast, 200 #Streaming is not implemented yet, returning original podcast
+            podcast = fetch_audio_bytes(podcast_url)
+            return podcast, 200 # Streaming is not implemented yet, returning original podcast
 
         # If status is complete, return podcast.
         if podcast and status == AudioStatus.Complete:

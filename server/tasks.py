@@ -5,7 +5,7 @@ import logging
 from helpers.cache_helpers import (initiate_key, cache_audio_segment, cached_rss_url,
                                    change_status_to_complete)
 from helpers.url_helpers import normalize_url, generate_cache_url, extract_source_url
-from audio_processing import (fetch_audio, process_audio, chunk_audio,
+from audio_processing import (fetch_audio_segment, process_audio, chunk_audio,
                               transcribe_audio, detect_ads, remove_ads, intro)
 
 # Configure logging
@@ -30,7 +30,7 @@ def process_url_task(self, rss_url):
     """Process audio from a single URL (Celery task)."""
     try:
         if not cached_rss_url(rss_url):  # Process only if not in cache
-            source_url, audio_segment = fetch_audio(rss_url)
+            source_url, audio_segment = fetch_audio_segment(rss_url)
             cache_url = generate_cache_url(rss_url, normalize_url(source_url))
             initiate_key(cache_url)
 
@@ -48,7 +48,7 @@ def process_url_task(self, rss_url):
 def stream_partial_content_task(self, url):
     """Stream partial content and process the rest asynchronously."""
     try:
-        source_url, audio_segment = fetch_audio(url)
+        source_url, audio_segment = fetch_audio_segment(url)
         cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
         initiate_key(cache_url)
 

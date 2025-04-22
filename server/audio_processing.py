@@ -155,7 +155,7 @@ def remove_ads(audio, ad_segments):
     return new_audio
 
 
-def fetch_audio(url):
+def fetch_audio_segment(url):
     """
     Fetch audiofile (mp3) from rss-url.
     Returns audio-segment and source-url.
@@ -169,6 +169,19 @@ def fetch_audio(url):
             buffer = io.BytesIO(response.content)
             audio_segment = AudioSegment.from_file(buffer, format="mp3")
             return source_url, audio_segment
+        else:
+            raise Exception(f"Failed to fetch file: {url}")
+    except Exception as e:
+        logger.error(f"Error fetching file: {e}")
+        raise
+
+def fetch_audio_bytes(url):
+    try:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            if extract_name(url) not in ALLOWED_EXTENSIONS:
+                raise Exception(f"The requested file type is not allowed: {file_name}")
+            return response.content
         else:
             raise Exception(f"Failed to fetch file: {url}")
     except Exception as e:
@@ -213,7 +226,7 @@ def process_audio(audio_segment, cache_url):
 def stream_and_process_audio(url):
     """Stream and process audio from URL"""
     try:
-        source_url, audio_segment = fetch_audio(url)
+        source_url, audio_segment = fetch_audio_segment(url)
         cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
         initiate_key(cache_url)
         threading.Thread(target=process_audio, args=(audio_segment, cache_url)).start()
@@ -223,7 +236,7 @@ def stream_and_process_audio(url):
 
 def stream_partial_content(url):
     try:
-        source_url, audio_segment = fetch_audio(url)
+        source_url, audio_segment = fetch_audio_segment(url)
         cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
         initiate_key(cache_url)
 

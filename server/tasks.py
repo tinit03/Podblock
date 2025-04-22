@@ -48,7 +48,6 @@ def process_url_task(self, rss_url):
 def stream_partial_content_task(self, url):
     """Stream partial content and process the rest asynchronously."""
     try:
-
         source_url, audio_segment = fetch_audio(url)
         cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
         initiate_key(cache_url)

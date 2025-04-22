@@ -34,7 +34,7 @@ client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')
 
 
-def chunk_audio(audio_segment, chunk_duration_seconds=120, chunk_duration_ms=120000):
+def chunk_audio(audio_segment, chunk_duration_seconds=240, chunk_duration_ms=240000):
     """Splits an audio file into smaller chunks."""
     audio = audio_segment
     duration_seconds = audio.duration_seconds
@@ -50,7 +50,6 @@ def chunk_audio(audio_segment, chunk_duration_seconds=120, chunk_duration_ms=120
 def transcribe_audio(audio_segment):
     buffer = BytesIO()
     audio_segment.export(buffer, format="wav")
-    logger.info('AudioSegment converted to wav!')
     buffer.seek(0)
     segments, _ = batched_model.transcribe(buffer, word_timestamps=True)
     # Extract word-level timestamps
@@ -158,7 +157,7 @@ def remove_ads(audio, ad_segments):
 
 def fetch_audio(url):
     """
-    Fetch and save audiofile (mp3) from rss-url.
+    Fetch audiofile (mp3) from rss-url.
     Returns audio-segment and source-url.
     """
     try:

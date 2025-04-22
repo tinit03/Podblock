@@ -41,24 +41,6 @@ services:
         --loglevel=info
         --pool=threads
         --concurrency=4
-
-  flower:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "5555:5555"
-    depends_on:
-      - redis
-      - celery_worker
-    environment:
-      - FLASK_ENV=production
-    volumes:
-      - ./server:/app
-    restart: unless-stopped
-    env_file: server/api.env
-    command: celery -A tasks flower --port=5555
-
   proxy:
     build:
       context: ./proxy
@@ -73,3 +55,5 @@ services:
     volumes:
       - ./proxy:/proxy
     restart: unless-stopped
+    logging:
+      driver: "none"

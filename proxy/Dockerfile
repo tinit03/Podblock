@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+ENV MITMPROXY_HOME=/home/mitmproxy/.mitmproxy
+
 WORKDIR /proxy
 
 # Install system dependencies required by mitmproxy and media handling
@@ -13,14 +15,19 @@ RUN apt-get update \
        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Default upstream PodBlock server; override at runtime with -e PODBLOCK_SERVER
-ENV PODBLOCK_SERVER="http://host.docker.internal:5001"
-
 # Copy proxy script and Python requirements
 COPY PodBlockProxy.py requirements.txt ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p $MITMPROXY_HOME \
+ && mitmproxy --version
+
+VOLUME ["/home/mitmproxy/.mitmproxy"]
+
+# Default upstream PodBlock server; override at runtime with -e PODBLOCK_SERVER
+ENV PODBLOCK_SERVER="http://host.docker.internal:5001"
 
 # Expose mitmproxy listening and web UI ports
 EXPOSE 8080 8081

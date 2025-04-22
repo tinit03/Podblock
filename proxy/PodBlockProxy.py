@@ -24,7 +24,6 @@ class XMLForwarder:
         self.server_xml_endpoint = f'{base}/rss'
         self.server_podcast_endpoint = f'{base}/podcast'
 
-
     def request(self, flow):
         if not any(pattern in flow.request.url for pattern in ["redirect.mp3"]):
             return

@@ -10,7 +10,7 @@ from tasks import process_urls_task
 from audio_processing import fetch_audio
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
-from helpers.cache_helpers import retrieve_status_and_audio_rss_url, retrieve_status_rss_url, poll_and_stream_audio
+from helpers.cache_helpers import retrieve_audio_rss_url, retrieve_status_rss_url, poll_and_stream_audio
 from helpers.url_helpers import normalize_url
 from flask import Response
 
@@ -62,7 +62,7 @@ def request_podcast():
             _, podcast = fetch_audio(podcast_url)
             return podcast, 200 #Streaming is not implemented yet, returning original podcast
 
-        status, podcast = result
+        podcast = retrieve_audio_rss_url(podcast_url)
         # If status is processing, stream podcast.
         if status == AudioStatus.Processing:
             _, podcast = fetch_audio(podcast_url)

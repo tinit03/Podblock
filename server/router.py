@@ -59,28 +59,11 @@ def request_podcast():
         status = retrieve_status_rss_url(podcast_url)
         # If status is none, process and stream podcast.
         if status is None:
-            #podcast = fetch_audio_bytes(podcast_url)
-            def generate():
-                with open("test.mp3", "rb") as f:
-                    chunk_size = 1024 * 64  # 64 KB per chunk
-                    while True:
-                        chunk = f.read(chunk_size)
-                        if not chunk:
-                            break
-                        yield chunk
-                        time.sleep(10)
-            return Response(
-                generate(),
-                mimetype='audio/mpeg'
-
-            ) # Streaming is not implemented yet, returning original podcast
-
-        podcast = retrieve_audio_rss_url(podcast_url)
+            return requests.get(podcast_url, stream=True) # No streaming implementation yet...
 
         # If status is processing, stream podcast.
         if status == AudioStatus.Processing.value:
-            podcast = fetch_audio_bytes(podcast_url)
-            return podcast, 200 # Streaming is not implemented yet, returning original podcast
+            return requests.get(podcast_url, stream=True) # No streaming implementation yet...
 
         # If status is complete, return podcast.
         if podcast and status == AudioStatus.Complete.value:

@@ -175,7 +175,13 @@ def fetch_audio_segment(url):
         logger.error(f"Error fetching file: {e}")
         raise
 
+
 def fetch_audio_bytes(url):
+    """
+    Fetch audio from rss-url.
+    :param url: rss-url
+    :return: audio bytes
+    """
     try:
         response = requests.get(url, stream=True)
         if response.status_code == 200:

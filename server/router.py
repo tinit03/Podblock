@@ -71,7 +71,9 @@ def request_podcast():
 
         # If status is complete, return podcast.
         if podcast and status == AudioStatus.Complete:
-            return podcast, 200
+            return Response(podcast,
+                            status=200,
+                            mimetype="audio/mpeg")
 
         return jsonify({"error": "Unexpected state"}), 500
 

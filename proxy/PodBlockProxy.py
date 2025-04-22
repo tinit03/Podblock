@@ -2,6 +2,7 @@ import requests
 import uuid
 import os
 from mitmproxy import http
+from urllib.parse import quote
 
 
 # python3 -m venv .venv
@@ -32,7 +33,8 @@ class XMLForwarder:
             return
 
         print(f"Intercepted initial podcast request: {flow.request.url}")
-        redirect_url = f"{self.server_podcast_endpoint}?url={flow.request.url}"
+        encoded_url = quote(flow.request.url, safe=":/")
+        redirect_url = f"{self.server_podcast_endpoint}?url={encoded_url}"
 
         flow.response = http.Response.make(
             302,

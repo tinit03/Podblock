@@ -59,11 +59,11 @@ def request_podcast():
         status = retrieve_status_rss_url(podcast_url)
         # If status is none, process and stream podcast.
         if status is None:
-            return requests.get(podcast_url, stream=True) # No streaming implementation yet...
+            return Response(fetch_audio_bytes(podcast_url), status=200) # No streaming implementation yet...
 
         # If status is processing, stream podcast.
         if status == AudioStatus.Processing.value:
-            return requests.get(podcast_url, stream=True) # No streaming implementation yet...
+            return Response(fetch_audio_bytes(podcast_url), status=200) # No streaming implementation yet...
 
         # If status is complete, return podcast.
         if podcast and status == AudioStatus.Complete.value:

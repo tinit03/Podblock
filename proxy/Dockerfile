@@ -1,7 +1,6 @@
 FROM python:3.11-slim
 
 ENV MITMPROXY_HOME=/home/mitmproxy/.mitmproxy
-
 WORKDIR /proxy
 
 # Install system dependencies required by mitmproxy and media handling
@@ -21,6 +20,7 @@ COPY PodBlockProxy.py requirements.txt ./
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create mitmproxy config dir and verify version
 RUN mkdir -p $MITMPROXY_HOME \
  && mitmproxy --version
 
@@ -32,10 +32,13 @@ ENV PODBLOCK_SERVER="http://host.docker.internal:5001"
 # Expose mitmproxy listening and web UI ports
 EXPOSE 8080 8081
 
+# Launch mitmproxy (web UI) with immediate streaming (no buffering)
 CMD ["mitmweb", \
      "--web-host", "0.0.0.0", \
      "--web-port", "8081", \
      "--listen-host", "0.0.0.0", \
      "--listen-port", "8080", \
+     "--set", "stream_large_bodies=1", \
+     "--set", "chunk_size=8kb", \
      "-s", "PodBlockProxy.py" \
     ]

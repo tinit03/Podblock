@@ -1,6 +1,7 @@
 import os
+from kombu import Queue
 
-BASE_REDIS = os.environ.get("REDIS_URL", "redis://localhost:6379")
+BASE_REDIS = os.environ.get("REDIS_URL", "redis://redis:6379")
 
 class Config:
     """Application Configurations"""
@@ -16,3 +17,20 @@ class Config:
     CELERY_TASK_SERIALIZER = 'json'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ACCEPT_CONTENT = ['json']
+
+    CELERY_TASK_QUEUES = (
+        Queue(
+            "stream",
+            routing_key="stream.#",
+            queue_arguments={"x-max-priority": 9},
+        ),
+        Queue(
+            "background",
+            routing_key="background.#",
+            queue_arguments={"x-max-priority": 9},
+        ),
+    )
+
+    CELERY_TASK_DEFAULT_QUEUE = "background"
+    CELERY_TASK_DEFAULT_EXCHANGE = "background"
+    CELERY_TASK_DEFAULT_ROUTING_KEY = "background.default"

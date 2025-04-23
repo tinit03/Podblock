@@ -5,12 +5,12 @@ import os
 import re
 
 from enums.status import AudioStatus
-from tasks import process_urls_task
+from tasks import process_urls_task, process_stream_url_task
 
 from audio_processing import fetch_audio_segment, fetch_audio_bytes
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
-from helpers.cache_helpers import retrieve_audio_rss_url, retrieve_status_rss_url, poll_and_stream_audio
+from helpers.cache_helpers import retrieve_audio_rss_url, retrieve_status_rss_url, stream_audio
 from helpers.url_helpers import normalize_url
 from flask import Response
 
@@ -37,7 +37,7 @@ def check_rss():
         return jsonify({"error": "Wrong file format. Expected application/xml"}), 400
     try:
         rss_feed = file.read()
-        urls = extract_urls_from_rss(rss_feed, limit=3) #Number of urls to process
+        urls = extract_urls_from_rss(rss_feed, limit=3) # Number of urls to retrieve
         logger.info(f"Retrieved the lists of urls:{urls}")
         process_urls_task.delay(urls)
         return "retrieved", 200
@@ -49,33 +49,52 @@ def check_rss():
 @audio_bp.route('/podcast', methods=['GET'])
 def request_podcast():
     """
-    This route is used to retrieve podcasts. If the podcast is processed and complete in cache,
-    this route will return the entire podcast. If else the route will return the original podcast
+    Retrieve a podcast by URL:
+      - If it's not processed: enqueue and stream as it’s processed.
+      - If it’s still processing: stream as it's processed.
+      - If it’s complete: return the entire podcast.
     """
-    podcast_url = request.args.get('url')
-    if not podcast_url:
+    url = request.args.get('url')
+    if not url:
         return jsonify({"error": "No url provided"}), 400
     try:
-        status = retrieve_status_rss_url(podcast_url)
-        # If status is none, process and stream podcast.
+        status = retrieve_status_rss_url(url)
+
+        # 1) Never queued → process and stream
         if status is None:
-            return Response(fetch_audio_bytes(podcast_url), status=200) # No streaming implementation yet...
+            logger.info('Initiating processing and streaming.')
+            process_stream_url_task.delay(url)
+            return Response(
+                stream_audio(url),
+                status=200,
+                mimetype='audio/mpeg'
+            )
 
-        # If status is processing, stream podcast.
+        # 2) Still processing → stream
         if status == AudioStatus.Processing.value:
-            return Response(fetch_audio_bytes(podcast_url), status=200) # No streaming implementation yet...
+            logger.info('Initiating streaming.')
+            return Response(
+                stream_audio(url),
+                status=200,
+                mimetype='audio/mpeg'
+            )
 
-        # If status is complete, return podcast.
-        if podcast and status == AudioStatus.Complete.value:
-            return Response(podcast,
-                            status=200,
-                            mimetype='audio/mpeg')
+        # 3) Complete → return processed podcast
+        if status == AudioStatus.Complete.value:
+            logger.info('Returning processed audio.')
+            podcast = retrieve_audio_rss_url(url)
+            return Response(
+                podcast,
+                status=200,
+                mimetype='audio/mpeg'
+            )
+
+        # 4) Fallback for any other status
+        return jsonify({"error": f"Unexpected status: {status}"}), 500
+
     except Exception as e:
-        logger.error(e)
+        logger.exception("Error in /podcast")
         return jsonify({"error": str(e)}), 500
-
-
-
 
 
 # @audio_bp.route('/upload_from_extension', methods=['POST'])

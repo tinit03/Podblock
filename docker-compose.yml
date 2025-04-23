@@ -23,7 +23,26 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
-  celery_worker:
+
+  celery_stream:
+    build: ./server
+    depends_on:
+      - redis
+      - app
+    env_file: server/api.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./server:/app
+    command: >
+      celery -A tasks worker
+        --loglevel=info
+        --pool=threads
+        --concurrency=8
+        -Q stream
+    restart: unless-stopped
+
+  celery_background:
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -31,16 +50,17 @@ services:
       - redis
       - app
     environment:
-      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./server:/app
-    restart: unless-stopped
-    env_file: server/api.env
     command: >
       celery -A tasks worker
         --loglevel=info
         --pool=threads
-        --concurrency=4
+        --concurrency=16
+        -Q background
+    restart: unless-stopped
+
   proxy:
     build:
       context: ./proxy

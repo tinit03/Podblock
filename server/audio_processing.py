@@ -228,31 +228,3 @@ def process_audio(audio_segment, cache_url):
         raise
 
 
-def stream_and_process_audio(url):
-    """Stream and process audio from URL"""
-    try:
-        source_url, audio_segment = fetch_audio_segment(url)
-        cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
-        initiate_key(cache_url)
-        threading.Thread(target=process_audio, args=(audio_segment, cache_url)).start()
-    except Exception as e:
-        print(f"Error processing {e}")
-
-
-def stream_partial_content(url):
-    try:
-        source_url, audio_segment = fetch_audio_segment(url)
-        cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
-        initiate_key(cache_url)
-
-        first_segment = audio_segment[120000:]
-        second_segment = audio_segment[:120000]
-
-        transcription = transcribe_audio(first_segment)
-        ad_segments = detect_ads(transcription)
-        new_audio = intro + remove_ads(first_segment, ad_segments)
-        cache_audio_segment(cache_url, new_audio)
-        threading.Thread(target=process_audio, args=(second_segment, cache_url)).start()
-        return convert_audio_segment_to_bytes(new_audio)
-    except Exception as e:
-        print(f"Error processing {e}")

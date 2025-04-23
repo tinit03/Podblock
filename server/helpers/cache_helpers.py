@@ -138,12 +138,12 @@ def poll_audio_beginning(source_url):
     return status, audio_bytes
 
 
-def poll_and_stream_audio(source_url):
-    """Polling and streaming audio from cache"""
-    logging.info(f"Polling and streaming from cache: {source_url}")
+def stream_audio(rss_url):
+    """Streaming audio from cache"""
+    logging.info(f"Streaming from cache: {rss_url}")
     interval = 15
 
-    status, audio_bytes = retrieve_status_and_audio_source_url(source_url)
+    status, audio_bytes = retrieve_status_and_audio_rss_url(rss_urll)
 
     if audio_bytes == b'NULL':
         logging.info(f"Audio is not processed, polling the beginning")

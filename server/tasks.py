@@ -25,7 +25,12 @@ def process_urls_task(rss_urls):
     logger.info(f"Queued {len(rss_urls)} URLs for processing")
 
 
-@celery.task(bind=True, max_retries=3)
+@celery.task(
+    bind=True,
+    queue='background',
+    priority=1,
+    max_retries=3
+)
 def process_url_task(self, rss_url):
     """Process audio from a single URL (Celery task)."""
     try:
@@ -44,33 +49,41 @@ def process_url_task(self, rss_url):
         self.retry(exc=e, countdown=60)  # Retry after 1 minute
 
 
-@celery.task(bind=True, max_retries=3)
-def stream_partial_content_task(self, url):
-    """Stream partial content and process the rest asynchronously."""
+@celery.task(
+    bind=True,
+    queue='stream',
+    priority=0,
+    max_retries=3
+)
+def process_stream_url_task(self, rss_url):
+    """Process audio from a single URL for streaming."""
     try:
-        source_url, audio_segment = fetch_audio_segment(url)
-        cache_url = generate_cache_url(normalize_url(url), normalize_url(source_url))
-        initiate_key(cache_url)
+        if not cached_rss_url(rss_url): # Process only if not in cache
+            source_url, audio_segment = fetch_audio_segment(rss_url)
+            cache_url = generate_cache_url(url, normalize_url(source_url))
+            initiate_key(cache_url),
 
-        first_segment = audio_segment[120000:]
-        second_segment = audio_segment[:120000]
+            first_segment = audio_segment[120000:]
+            second_segment = audio_segment[:120000]
 
-        transcription = transcribe_audio(first_segment)
-        ad_segments = detect_ads(transcription)
-        new_audio = intro + remove_ads(first_segment, ad_segments)
+            # Processing initial chunk of 2 minutes to ensure faster playback time.
+            transcription = transcribe_audio(first_segment)
+            ad_segments = detect_ads(transcription)
+            new_audio = intro + remove_ads(first_segment, ad_segments)
+            cache_audio_segment(cache_url, new_audio)
 
-        # Cache the first segment
-        buffer = io.BytesIO()
-        new_audio.export(buffer, format="mp3")
-        cache_audio_segment(cache_url, buffer.getvalue())
+            logger.info(f'Processing complete for initial chunk: {rss_url}')
+            # Processing remaining chunks
+            process_audio(second_segment, cache_url)
+            return (f"Processing complete for: {rss_url}")
+        else:
+            logger.info(f"{rss_url} is already in the cache. Skip process")
+            return f"{rss_url} already cached"
 
-        # Process the second segment
-        buffer = io.BytesIO()
-        second_segment.export(buffer, format="mp3")
-        process_audio_task.delay(buffer.getvalue(), cache_url)
-
-        return cache_url
     except Exception as e:
-        logger.error(f"Error in stream_partial_content_task for {url}: {e}")
-        self.retry(exc=e, countdown=30)
+        logger.error(f"(Unable to process audio from {rss_url}: {e})")
+        self.retry(exc=e, countdown=60)
+
+
+
 

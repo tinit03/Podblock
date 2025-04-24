@@ -160,7 +160,9 @@ def fetch_audio(url):
         if response.status_code == 200:
             if extract_name(response.url) not in ALLOWED_EXTENSIONS:
                 raise Exception(f"The requested file type is not allowed: {file_name}")
-            return response.content
+            buffer = io.BytesIO(response.content)
+            audio_segment = AudioSegment.from_file(buffer, format="mp3")
+            return audio_segment
         else:
             raise Exception(f"Failed to fetch file: {url}")
     except Exception as e:

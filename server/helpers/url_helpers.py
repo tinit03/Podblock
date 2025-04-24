@@ -2,24 +2,6 @@ from urllib.parse import urlparse, unquote, urlunparse
 import os
 
 
-def normalize_url(url):
-    return url.split(".mp3")[0] + ".mp3"
-
-
-def generate_cache_key(rss_url, source_url):
-    return f"{rss_url}::{source_url}"
-
-
-def extract_rss_url(cache_url):
-    """Retrieve the rss-url from the cache-url."""
-    return cache_url.split("::")[0]
-
-
-def extract_source_url(cache_url):
-    """Retrieve the source-url from the cache-url"""
-    return cache_url.split("::")[1]
-
-
 def extract_name(url):
     """Extracts the filename from the given URL."""
     parsed_url = urlparse(url)

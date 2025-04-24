@@ -10,12 +10,13 @@ from faster_whisper import WhisperModel, BatchedInferencePipeline
 from urllib.parse import urlparse, unquote
 import openai
 import re
+import logging
+
 from dotenv import load_dotenv
 from helpers.cache_helpers import cache_chunk, update_total_number_of_chunks, update_status_to_complete
 from helpers.file_helpers import allowed_file, save_file, sanitize_filename
 from helpers.audio_helpers import convert_audio_segment_to_bytes
-import logging
-from helpers.url_helpers import normalize_url, generate_cache_url, extract_name, extract_title, extract_source_url
+from helpers.url_helpers import extract_name
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

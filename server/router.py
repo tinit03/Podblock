@@ -8,7 +8,7 @@ from flask import Response
 from enums.status import AudioStatus
 from tasks import process_urls_task, initiate_streaming_task
 
-from audio_processing import fetch_audio, fetch_audio_bytes
+from audio_processing import fetch_audio
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
 from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url
@@ -64,7 +64,7 @@ def request_podcast():
             initiate_streaming_task.delay(url)
             podcast = retrieve_audio(url)
             return Response(
-                stream_audio(url),
+                podcast,
                 status=200,
                 mimetype='audio/mpeg'
             )

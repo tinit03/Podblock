@@ -4,15 +4,14 @@ import time
 import os
 import re
 
+from flask import Response
 from enums.status import AudioStatus
-from tasks import process_urls_task, process_stream_url_task
+from tasks import process_urls_task, initiate_streaming_task
 
-from audio_processing import fetch_audio_segment, fetch_audio_bytes
+from audio_processing import fetch_audio, fetch_audio_bytes
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
-from helpers.cache_helpers import retrieve_audio_rss_url, retrieve_status_rss_url, stream_audio
-from helpers.url_helpers import normalize_url
-from flask import Response
+from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url
 
 from flask import Blueprint, request, jsonify, send_file, Response, stream_with_context
 import xml.etree.ElementTree as ET
@@ -36,8 +35,8 @@ def check_rss():
     if 'application/xml' not in file.content_type:
         return jsonify({"error": "Wrong file format. Expected application/xml"}), 400
     try:
-        rss_feed = file.read()
-        urls = extract_urls_from_rss(rss_feed, limit=3) # Number of urls to retrieve
+        rss = file.read()
+        urls = extract_urls_from_rss(rss, limit=3)  # Number of urls to retrieve
         logger.info(f"Retrieved the lists of urls:{urls}")
         process_urls_task.delay(urls)
         return "retrieved", 200
@@ -58,40 +57,28 @@ def request_podcast():
     if not url:
         return jsonify({"error": "No url provided"}), 400
     try:
-        status = retrieve_status_rss_url(url)
-
-        # 1) Never queued → process and stream
-        if status is None:
-            logger.info('Initiating processing and streaming.')
-            process_stream_url_task.delay(url)
+        saved = cached_url(url)
+        # 1) Not saved in cache -> start processing and streaming
+        if not saved:
+            logger.info('Initiating processing.')
+            initiate_streaming_task.delay(url)
+            podcast = retrieve_audio(url)
             return Response(
                 stream_audio(url),
                 status=200,
                 mimetype='audio/mpeg'
             )
-
-        # 2) Still processing → stream
-        if status == AudioStatus.Processing.value:
-            logger.info('Initiating streaming.')
-            return Response(
-                stream_audio(url),
-                status=200,
-                mimetype='audio/mpeg'
-            )
-
-        # 3) Complete → return processed podcast
-        if status == AudioStatus.Complete.value:
-            logger.info('Returning processed audio.')
-            podcast = retrieve_audio_rss_url(url)
+        # 3) Saved in cache → start streaming
+        if saved:
+            logger.info('Streaming audio.')
+            podcast = retrieve_audio(url)
             return Response(
                 podcast,
                 status=200,
                 mimetype='audio/mpeg'
             )
-
         # 4) Fallback for any other status
         return jsonify({"error": f"Unexpected status: {status}"}), 500
-
     except Exception as e:
         logger.exception("Error in /podcast")
         return jsonify({"error": str(e)}), 500

@@ -6,7 +6,7 @@ def normalize_url(url):
     return url.split(".mp3")[0] + ".mp3"
 
 
-def generate_cache_url(rss_url, source_url):
+def generate_cache_key(rss_url, source_url):
     return f"{rss_url}::{source_url}"
 
 

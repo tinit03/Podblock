@@ -11,8 +11,7 @@ from urllib.parse import urlparse, unquote
 import openai
 import re
 from dotenv import load_dotenv
-from helpers.cache_helpers import (initiate_key, cache_audio_segment, cached_rss_url, cached_source_url,
-                                   change_status_to_complete, download_audio_cache_key)
+from helpers.cache_helpers import cache_chunk, update_total_number_of_chunks, update_status_to_complete
 from helpers.file_helpers import allowed_file, save_file, sanitize_filename
 from helpers.audio_helpers import convert_audio_segment_to_bytes
 import logging
@@ -20,7 +19,6 @@ from helpers.url_helpers import normalize_url, generate_cache_url, extract_name,
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
 logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
@@ -34,17 +32,14 @@ client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')
 
 
-def chunk_audio(audio_segment, chunk_duration_seconds=240, chunk_duration_ms=240000):
+def chunk_audio(audio, chunk_duration_seconds=240, chunk_duration_ms=240000):
     """Splits an audio file into smaller chunks."""
-    audio = audio_segment
     duration_seconds = audio.duration_seconds
-
     if duration_seconds <= chunk_duration_seconds:
         chunks = [(audio, duration_seconds)]
     else:
         chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
-
-    return chunks, chunk_duration_seconds
+    return chunks
 
 
 def transcribe_audio(audio_segment):
@@ -155,37 +150,14 @@ def remove_ads(audio, ad_segments):
     return new_audio
 
 
-def fetch_audio_segment(url):
+def fetch_audio(url):
     """
-    Fetch audiofile (mp3) from rss-url.
-    Returns audio-segment and source-url.
-    """
-    try:
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            if extract_name(url) not in ALLOWED_EXTENSIONS:
-                raise Exception(f"The requested file type is not allowed: {file_name}")
-            source_url = response.url
-            buffer = io.BytesIO(response.content)
-            audio_segment = AudioSegment.from_file(buffer, format="mp3")
-            return source_url, audio_segment
-        else:
-            raise Exception(f"Failed to fetch file: {url}")
-    except Exception as e:
-        logger.error(f"Error fetching file: {e}")
-        raise
-
-
-def fetch_audio_bytes(url):
-    """
-    Fetch audio from rss-url.
-    :param url: rss-url
-    :return: audio bytes
+    Fetch audio from url.
     """
     try:
         response = requests.get(url, stream=True)
         if response.status_code == 200:
-            if extract_name(url) not in ALLOWED_EXTENSIONS:
+            if extract_name(response.url) not in ALLOWED_EXTENSIONS:
                 raise Exception(f"The requested file type is not allowed: {file_name}")
             return response.content
         else:
@@ -195,36 +167,39 @@ def fetch_audio_bytes(url):
         raise
 
 
-def process_audio(audio_segment, cache_url):
-    """Download and process an audio file."""
-    source_url = extract_source_url(cache_url)
+def process_audio(audio_segment, url):
+    """
+    Process audio from url.
+    """
     try:
         frame_rate = audio_segment.frame_rate
-        chunks, chunk_duration = chunk_audio(audio_segment)
+
+        chunks = chunk_audio(audio_segment)
+        update_total_number_of_chunks(url, len(chunks))
         logger.info(f"Chunking complete: {source_url}")
 
         for i,  chunk in enumerate(chunks):
             transcription = transcribe_audio(chunk)
-            logger.info(f"Transcription complete for chunk {i+1}/{len(chunks)}: {source_url}")
+            logger.info(f"Transcription complete for chunk {i+1}/{len(chunks)}: {url}")
 
             ad_segments = detect_ads(transcription)
-            logger.info(f"Ad-analysis complete for chunk {i+1}/{len(chunks)}: {source_url}")
+            logger.info(f"Ad-analysis complete for chunk {i+1}/{len(chunks)}: {url}")
 
             processed_chunk = remove_ads(chunk, ad_segments)
-            logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {source_url}")
+            logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {url}")
 
             if i == 0:
                 processed_chunk = intro + processed_chunk
             processed_chunk.set_frame_rate(frame_rate)
 
-            cache_audio_segment(cache_url, processed_chunk)
-            logger.info(f"Caching complete for chunk {i + 1}/{len(chunks)}:{source_url}")
+            cache_chunk(processed_chunk, url)
+            logger.info(f"Caching complete for chunk {i + 1}/{len(chunks)}:{url}")
 
-        change_status_to_complete(cache_url)
-        logger.info(f"Processing complete for {source_url}")
+        update_status_to_complete(url)
+        logger.info(f"Processing complete for {url}")
 
     except Exception as e:
-        print(f"Error processing {source_url}: {str(e)}")
+        print(f"Error processing {url}: {e}")
         raise
 
 

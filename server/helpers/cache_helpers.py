@@ -151,8 +151,9 @@ def cached_url(key: str) -> bool:
     """
         Retrieve and assemble all audio chunks for complete.
     """
+    meta_key = f'meta::{key}'
     try:
-        return any(r.scan_iter(f"meta::{audio_key}"))
+        return any(r.scan_iter(meta_key))
     except Exception as e:
         logging.error(f"Error checking cached audio for {key}: {e}")
         raise

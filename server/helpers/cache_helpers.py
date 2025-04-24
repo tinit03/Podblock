@@ -2,7 +2,7 @@ import io
 import logging
 import time
 import redis
-from ..enums.status import AudioStatus
+from enums.status import AudioStatus
 from audio_helpers import convert_audio_segment_to_bytes
 from config import Config
 

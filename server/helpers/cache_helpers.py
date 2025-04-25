@@ -15,12 +15,14 @@ def initiate_key(key):
     """
     meta_key = f'meta::{key}'
     lock_key = f'lock::{key}'
+
     lock = r.lock(lock_key, timeout=60)
     try:
         if not lock.acquire(blocking=False):
             logging.info(f"Key {key} is already being initialized")
             return False
 
+        logging.info('No lock! Initiating key.')
         r.hset(meta_key, mapping={
             "status": AudioStatus.Processing.value,
             "chunks": 0

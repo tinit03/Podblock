@@ -60,6 +60,7 @@ def request_podcast():
         saved = cached_url(url)
         # 1) Not saved in cache -> start processing and streaming
         if not saved:
+            logger.info('Url is NOT SAVED in cache!')
             initiated = initiate_key(url)
             if initiated:
                 initiate_streaming_task.delay(url)
@@ -71,7 +72,7 @@ def request_podcast():
             )
         # 3) Saved in cache → start streaming
         if saved:
-            logger.info('Streaming audio.')
+            logger.info('Url is SAVED in cache!.')
             podcast = retrieve_audio(url)
             return Response(
                 podcast,

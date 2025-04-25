@@ -11,7 +11,7 @@ r = redis.Redis.from_url(Config.REDIS_URL)
 
 def initiate_key(key):
     """
-        Initiates key in cache
+    Initiates key in cache
     """
     meta_key = f'meta::{key}'
     lock_key = f'lock::{key}'
@@ -34,7 +34,7 @@ def initiate_key(key):
 
 def update_total_number_of_chunks(key, chunks):
     """
-        Changes total number of chunks for key in cache
+    Changes total number of chunks for key in cache
     """
     meta_key = f'meta::{key}'
     try:
@@ -46,7 +46,7 @@ def update_total_number_of_chunks(key, chunks):
 
 def update_status_to_complete(key):
     """
-        Changes the status to complete for key in cache
+    Changes the status to complete for key in cache
     """
     meta_key = f'meta::{key}'
     try:
@@ -58,26 +58,25 @@ def update_status_to_complete(key):
 
 def retrieve_total_number_of_chunks(key):
     """
-        Retrieves total number of chunks for key in cache
+    Retrieves total number of chunks for key in cache as an integer.
     """
     meta_key = f'meta::{key}'
     try:
-        return r.hget(meta_key, "chunks")
-    except Exeption as e:
+        chunks = r.hget(meta_key, "chunks")
+        return int(chunks.decode()) if chunks else 0
+    except Exception as e:
         logging.error(f"Error retrieving total number of chunks for {key}: {e}")
         raise
 
 
 def retrieve_status(key):
     """
-        Retrieves status for key in cache
+    Retrieves status for key in cache
     """
     meta_key = f'meta::{key}'
     try:
         status = r.hget(meta_key, "status")
-        if status is not None:
-            return status.decode("utf-8")
-        return None
+        return status.decode("utf-8") if status else None
     except Exeption as e:
         logging.error(f"Error retrieving status for {key}: {e}")
         raise
@@ -85,7 +84,7 @@ def retrieve_status(key):
 
 def cache_chunk(audio, key):
     """
-        Caching audio segment as raw bytes.
+    Caching audio segment as raw bytes.
     """
     try:
         bytes = convert_audio_segment_to_bytes(audio)
@@ -97,7 +96,7 @@ def cache_chunk(audio, key):
 
 def retrieve_audio(key):
     """
-        Retrieve audio bytes from cache with cache-key.
+    Retrieve audio bytes from cache with cache-key.
     """
     try:
         logging.info('Retrieving audio from cache!')
@@ -119,7 +118,7 @@ def retrieve_audio(key):
 
 def retrieve_complete_audio(key, total_chunks):
     """
-        Retrieve and assemble all audio chunks for complete.
+    Retrieve and assemble all audio chunks for complete.
     """
     stream_key = f'stream::{key}'
     try:
@@ -140,9 +139,9 @@ def retrieve_complete_audio(key, total_chunks):
         raise
 
 
-def retrieve_processing_audio(key, total_chunks, yielded = 0, last_id = '0-0'):
+def retrieve_processing_audio(key, total_chunks, yielded=0, last_id='0-0'):
     """
-        Retrieve and assemble all audio chunks for complete.
+    Retrieve and assemble all audio chunks for complete.
     """
     stream_key = f'stream::{key}'
     try:
@@ -167,7 +166,7 @@ def retrieve_processing_audio(key, total_chunks, yielded = 0, last_id = '0-0'):
 
 def cached_url(key: str) -> bool:
     """
-        Retrieve and assemble all audio chunks for complete.
+    Retrieve and assemble all audio chunks for complete.
     """
     meta_key = f'meta::{key}'
     try:

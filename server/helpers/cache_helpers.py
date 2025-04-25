@@ -84,7 +84,7 @@ def cache_chunk(audio, key):
     """
     try:
         bytes = convert_audio_segment_to_bytes(audio)
-        r.xadd(f'stream::{key}', mapping={"audio": bytes})
+        r.xadd(f'stream::{key}', fields={"audio": bytes})
     except Exception as e:
         logging.error(f"Error saving chunk to cache for {key}: {e}")
         raise

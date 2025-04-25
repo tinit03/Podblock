@@ -68,7 +68,7 @@ def initiate_streaming_task(self, url):
         transcription = transcribe_audio(first_segment)
         logger.info(f'Transcription complete for initial chunk: {url}')
         ad_segments = detect_ads(transcription)
-        logger.info(f"Ad-analysis complete for chunk {i + 1}/{len(chunks)}: {url}")
+        logger.info(f"Ad-analysis complete for initial chunk: {url}")
         processed_segment = intro + remove_ads(first_segment, ad_segments)
         cache_chunk(processed_segment, url)
         update_total_number_of_chunks(url, 1)

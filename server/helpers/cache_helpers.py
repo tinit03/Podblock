@@ -56,17 +56,29 @@ def update_status_to_complete(key):
         raise
 
 
-def retrieve_total_number_of_chunks(key):
+def retrieve_total_number_of_chunks(key: str,
+                                    min: int = 1,
+                                    timeout: float = None,
+                                    interval: float = 0.5) -> int:
     """
-    Retrieves total number of chunks for key in cache as an integer.
+    Retrieves total number of chunks from cache,
+    but waits (polling) until that count is > min_chunks.
     """
-    meta_key = f'meta::{key}'
-    try:
-        chunks = r.hget(meta_key, "chunks")
-        return int(chunks.decode()) if chunks else 0
-    except Exception as e:
-        logging.error(f"Error retrieving total number of chunks for {key}: {e}")
-        raise
+    meta_key = f"meta::{key}"
+    start = time.time()
+
+    while True:
+        try:
+            raw = r.hget(meta_key, "chunks")
+            count = int(raw.decode()) if raw else 0
+            if count > min:
+                return count
+            if timeout is not None and (time.time() - start) >= timeout:
+                raise TimeoutError(f"Waited {timeout}s but only got {count} chunks!")
+            time.sleep(interval)
+        except Exception:
+            logging.exception(f"Error waiting for chunks on {key}")
+            raise
 
 
 def retrieve_status(key):

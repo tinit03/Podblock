@@ -61,8 +61,8 @@ def initiate_streaming_task(self, url):
     """
     try:
         audio = fetch_audio(url)
-        first_segment = audio[120000:]
-        second_segment = audio[:120000]
+        first_segment = audio[:120000]
+        second_segment = audio[120000:]
 
         # Processing initial chunk of 2 minutes to ensure faster playback time.
         transcription = transcribe_audio(first_segment)

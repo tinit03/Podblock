@@ -72,8 +72,9 @@ def retrieve_status(key):
     """
         Retrieves status for key in cache
     """
+    meta_key = f'meta::{key}'
     try:
-        status = r.hget(f'meta::{key}', "status")
+        status = r.hget(meta_key, "status")
         if status is not None:
             return status.decode("utf-8")
         return None
@@ -101,7 +102,9 @@ def retrieve_audio(key):
     try:
         logging.info('Retrieving audio from cache!')
         status = retrieve_status(key)
+        logging.info(f'Status: {status}')
         total_chunks = retrieve_total_number_of_chunks(key)
+        logging.info(f'Total chunks: {total_chunks}')
         if status == AudioStatus.Complete.value:
             logging.info("Audio is complete. Streaming complete audio.")
             return retrieve_complete_audio(key, total_chunks)

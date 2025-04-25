@@ -34,7 +34,7 @@ def process_rss():
         return jsonify({"error": "No url provided"}), 400
     try:
         rss = fetch_rss(url)
-        urls = extract_urls_from_rss(rss, limit=3)  # Number of urls to retrieve
+        urls = extract_rss_urls(rss, limit=3)  # Number of urls to retrieve
         logger.info(f"Retrieved the lists of urls:{urls}")
         process_urls_task.delay(urls)
         return "retrieved", 200

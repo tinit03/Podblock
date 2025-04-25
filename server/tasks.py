@@ -66,12 +66,14 @@ def initiate_streaming_task(self, url):
 
         # Processing initial chunk of 2 minutes to ensure faster playback time.
         transcription = transcribe_audio(first_segment)
+        logger.info(f'Transcription complete for initial chunk: {url}')
         ad_segments = detect_ads(transcription)
+        logger.info(f"Ad-analysis complete for chunk {i + 1}/{len(chunks)}: {url}")
         processed_segment = intro + remove_ads(first_segment, ad_segments)
         cache_chunk(processed_segment, url)
         update_total_number_of_chunks(url, 1)
-
         logger.info(f'Processing complete for initial chunk: {url}')
+
         # Processing remaining chunks
         process_audio(second_segment, url, True)
         return f"Processing complete for: {url}"

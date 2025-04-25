@@ -37,7 +37,7 @@ def chunk_audio(audio, chunk_duration_seconds=240, chunk_duration_ms=240000):
     """Splits an audio file into smaller chunks."""
     duration_seconds = audio.duration_seconds
     if duration_seconds <= chunk_duration_seconds:
-        chunks = [(audio, duration_seconds)]
+        chunks = [audio]
     else:
         chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
     return chunks
@@ -170,13 +170,12 @@ def fetch_audio(url):
         raise
 
 
-def process_audio(audio_segment, url):
+def process_audio(audio_segment, url, streaming):
     """
     Process audio from url.
     """
     try:
         frame_rate = audio_segment.frame_rate
-
         chunks = chunk_audio(audio_segment)
         update_total_number_of_chunks(url, len(chunks))
         logger.info(f"Chunking complete: {url}")
@@ -191,7 +190,7 @@ def process_audio(audio_segment, url):
             processed_chunk = remove_ads(chunk, ad_segments)
             logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {url}")
 
-            if i == 0:
+            if i == 0 and not streaming:
                 processed_chunk = intro + processed_chunk
             processed_chunk.set_frame_rate(frame_rate)
 

@@ -39,7 +39,7 @@ def process_url_task(self, url):
         if not cached_url(url):  # Process only if not in cache
             audio = fetch_audio(url)
             initiate_key(url)
-            process_audio(audio, url)
+            process_audio(audio, url, False)
             return f"Processing complete for: {url}"
         else:
             logger.info(f"{url} is already in the cache. Skip process")
@@ -73,7 +73,7 @@ def initiate_streaming_task(self, url):
 
         logger.info(f'Processing complete for initial chunk: {url}')
         # Processing remaining chunks
-        process_audio(second_segment, url)
+        process_audio(second_segment, url, True)
         return f"Processing complete for: {url}"
 
     except Exception as e:

@@ -179,7 +179,7 @@ def process_audio(audio_segment, url):
 
         chunks = chunk_audio(audio_segment)
         update_total_number_of_chunks(url, len(chunks))
-        logger.info(f"Chunking complete: {source_url}")
+        logger.info(f"Chunking complete: {url}")
 
         for i,  chunk in enumerate(chunks):
             transcription = transcribe_audio(chunk)

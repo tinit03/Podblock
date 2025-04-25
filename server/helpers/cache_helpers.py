@@ -73,7 +73,10 @@ def retrieve_status(key):
         Retrieves status for key in cache
     """
     try:
-        return r.hget(f'meta::{key}', "status")
+        status = r.hget(f'meta::{key}', "status")
+        if status is not None:
+            return status.decode("utf-8")
+        return None
     except Exeption as e:
         logging.error(f"Error retrieving status for {key}: {e}")
         raise

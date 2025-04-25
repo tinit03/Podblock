@@ -60,25 +60,21 @@ def initiate_streaming_task(self, url):
     Process audio from a single URL for streaming.
     """
     try:
-        if not cached_url(url): # Process only if not in cache
-            audio = fetch_audio(url)
-            first_segment = audio[120000:]
-            second_segment = audio[:120000]
+        audio = fetch_audio(url)
+        first_segment = audio[120000:]
+        second_segment = audio[:120000]
 
-            # Processing initial chunk of 2 minutes to ensure faster playback time.
-            transcription = transcribe_audio(first_segment)
-            ad_segments = detect_ads(transcription)
-            processed_segment = intro + remove_ads(first_segment, ad_segments)
-            cache_chunk(processed_segment, url)
-            update_total_number_of_chunks(url, 1)
+        # Processing initial chunk of 2 minutes to ensure faster playback time.
+        transcription = transcribe_audio(first_segment)
+        ad_segments = detect_ads(transcription)
+        processed_segment = intro + remove_ads(first_segment, ad_segments)
+        cache_chunk(processed_segment, url)
+        update_total_number_of_chunks(url, 1)
 
-            logger.info(f'Processing complete for initial chunk: {url}')
-            # Processing remaining chunks
-            process_audio(second_segment, url)
-            return f"Processing complete for: {url}"
-        else:
-            logger.info(f"{url} is already in the cache. Skip process")
-            return f"{url} already cached"
+        logger.info(f'Processing complete for initial chunk: {url}')
+        # Processing remaining chunks
+        process_audio(second_segment, url)
+        return f"Processing complete for: {url}"
 
     except Exception as e:
         logger.error(f"(Unable to process audio from {url}: {e})")

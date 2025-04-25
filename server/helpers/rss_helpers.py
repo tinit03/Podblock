@@ -1,10 +1,27 @@
 import xml.etree.ElementTree as ET
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 
+def fetch_rss(url):
+    """
+    Fetch rss from url.
+    """
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            content_type = response.headers.get("Content-Type", "")
+            if "application/xml" not in content_type:
+                raise Exception(f"Unexpected content type: {content_type}")
+            return response.content
+        else:
+            raise Exception(f"Failed to fetch RSS feed. Status code: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error fetching RSS from {url}: {e}")
+        raise
 
-def extract_urls_from_rss(rss_content, limit=1):
+def extract_rss_urls(rss_content, limit=1):
     """
     Extract audio URLs from RSS XML.
     """

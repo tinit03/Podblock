@@ -9,7 +9,7 @@ from enums.status import AudioStatus
 from tasks import process_urls_task, initiate_streaming_task
 
 from audio_processing import fetch_audio
-from helpers.rss_helpers import extract_urls_from_rss
+from helpers.rss_helpers import extract_rss_urls, fetch_rss
 from helpers.file_helpers import allowed_file, save_file
 from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url, initiate_key
 
@@ -24,18 +24,16 @@ audio_bp = Blueprint('audio', __name__)
 
 
 @audio_bp.route('/rss', methods=['POST'])
-def check_rss():
+def process_rss():
     """
         This route is used to upload RSS feeds to the server. The server will process and cache the
         most recent urls in the RSS feed (if not already processed and caches).
     """
-    if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    file = request.files['file']
-    if 'application/xml' not in file.content_type:
-        return jsonify({"error": "Wrong file format. Expected application/xml"}), 400
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"error": "No url provided"}), 400
     try:
-        rss = file.read()
+        rss = fetch_rss(url)
         urls = extract_urls_from_rss(rss, limit=3)  # Number of urls to retrieve
         logger.info(f"Retrieved the lists of urls:{urls}")
         process_urls_task.delay(urls)

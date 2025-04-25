@@ -52,14 +52,14 @@ class XMLForwarder:
 
         print(f" Intercepted XML from: {flow.request.url}")
         try:
-            rrss_xml = flow.response.content
-            self.send_xml_to_server(rrss_xml)
+            rss_url = quote(flow.request.url, safe=":/")
+            self.send_xml_to_server(rss_url)
 
         except requests.exceptions.RequestException as e:
             print(f" Error sending extracting xml from response: {e}")
         return
 
-    def send_xml_to_server(self, rss_xml):
+    def send_xml_to_server(self, rss_url):
         request_id = uuid.uuid4()
         print(f"[{request_id}] Forwarding to {self.server_xml_endpoint}")
 
@@ -67,7 +67,7 @@ class XMLForwarder:
             with requests.Session() as session:
                 response = session.post(
                     self.server_xml_endpoint,
-                    files={'file': ('rss_feed.xml', rss_xml, 'application/xml')},
+                    params={"url": rss_url},
                     timeout=10
                 )
 

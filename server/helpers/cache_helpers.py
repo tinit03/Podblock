@@ -151,7 +151,7 @@ def retrieve_processing_audio(key, total_chunks, yielded=0, last_id='0-0'):
                 block=10000,
                 count=1
             )
-            if entry:
+            if resp:
                 _, messages = resp[0]
                 msg_id, fields = messages[0]
                 last_id = msg_id

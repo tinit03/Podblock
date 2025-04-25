@@ -96,6 +96,7 @@ def retrieve_audio(key):
         Retrieve audio bytes from cache with cache-key.
     """
     try:
+        logging.info('Retrieving audio from cache!')
         status = retrieve_status(key)
         total_chunks = retrieve_total_number_of_chunks(key)
         if status == AudioStatus.Complete.value:

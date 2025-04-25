@@ -36,8 +36,9 @@ def update_total_number_of_chunks(key, chunks):
     """
         Changes total number of chunks for key in cache
     """
+    meta_key = f'meta::{key}'
     try:
-        r.hincrby(cache_key, "total_chunks", chunks)
+        r.hincrby(meta_key, "total_chunks", chunks)
     except Exception as e:
         logging.error(f"Error updating total number of chunks for {key}: {e}")
         raise

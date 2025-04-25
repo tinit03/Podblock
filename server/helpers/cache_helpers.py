@@ -13,11 +13,19 @@ def initiate_key(key):
     """
         Initiates key in cache
     """
+    meta_key = f'meta::{key}'
+    lock_key = f'lock::{key}'
+    lock = r.lock(lock_key, timeout=60)
     try:
-        r.hset(f'meta::{key}', mapping={
+        if not lock.acquire(blocking=False):
+            logging.info(f"Key {key} is already being initialized")
+            return False
+
+        r.hset(meta_key, mapping={
             "status": AudioStatus.Processing.value,
             "chunks": 0
         })
+        return True
     except Exception as e:
         logging.error(f"Error initializing key in cache for {key}: {e}")
 
@@ -153,7 +161,7 @@ def cached_url(key: str) -> bool:
     """
     meta_key = f'meta::{key}'
     try:
-        return any(r.scan_iter(meta_key))
+        return r.exists(meta_key) > 0
     except Exception as e:
         logging.error(f"Error checking cached audio for {key}: {e}")
         raise

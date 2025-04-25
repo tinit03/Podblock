@@ -11,7 +11,7 @@ from tasks import process_urls_task, initiate_streaming_task
 from audio_processing import fetch_audio
 from helpers.rss_helpers import extract_urls_from_rss
 from helpers.file_helpers import allowed_file, save_file
-from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url
+from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url, initiate_key
 
 from flask import Blueprint, request, jsonify, send_file, Response, stream_with_context
 import xml.etree.ElementTree as ET
@@ -60,8 +60,9 @@ def request_podcast():
         saved = cached_url(url)
         # 1) Not saved in cache -> start processing and streaming
         if not saved:
-            logger.info('Initiating processing.')
-            initiate_streaming_task.delay(url)
+            initiated = initiate_key(url)
+            if initiated:
+                initiate_streaming_task.delay(url)
             podcast = retrieve_audio(url)
             return Response(
                 podcast,

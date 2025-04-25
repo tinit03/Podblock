@@ -62,8 +62,6 @@ def initiate_streaming_task(self, url):
     try:
         if not cached_url(url): # Process only if not in cache
             audio = fetch_audio(url)
-            initiate_key(url),
-
             first_segment = audio[120000:]
             second_segment = audio[:120000]
 

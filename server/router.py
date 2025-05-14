@@ -33,7 +33,7 @@ def process_rss():
     if not url:
         return jsonify({"error": "No url provided"}), 400
     try:
-        logger.info("RSS-Feed uploaded to the server.")
+        logger.info("RSS feed uploaded to the server.")
         rss = fetch_rss(url)
         urls = extract_rss_urls(rss, limit=3)  # Number of urls to retrieve
         for url in urls:

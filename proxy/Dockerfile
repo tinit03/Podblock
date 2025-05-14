@@ -38,6 +38,7 @@ CMD ["mitmweb", \
      "--web-port", "8081", \
      "--listen-host", "0.0.0.0", \
      "--listen-port", "8080", \
+     "--quiet", \
      "--set", "stream_large_bodies=1", \
      "--set", "chunk_size=8kb", \
      "-s", "PodBlockProxy.py" \

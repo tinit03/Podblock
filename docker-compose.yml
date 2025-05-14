@@ -74,5 +74,3 @@ services:
     volumes:
       - ./proxy:/proxy
     restart: unless-stopped
-    logging:
-      driver: "none"

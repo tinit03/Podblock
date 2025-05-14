@@ -6,7 +6,7 @@ import re
 
 from flask import Response
 from enums.status import AudioStatus
-from tasks import process_urls_task, initiate_streaming_task
+from tasks import process_url_task, initiate_streaming_task
 
 from audio_processing import fetch_audio, retrieve_timestamps
 from helpers.rss_helpers import extract_rss_urls, fetch_rss
@@ -35,8 +35,10 @@ def process_rss():
     try:
         rss = fetch_rss(url)
         urls = extract_rss_urls(rss, limit=3)  # Number of urls to retrieve
-        logger.info(f"Retrieved the lists of urls:{urls}")
-        process_urls_task.delay(urls)
+        logger.info(f"Retrieved RSS-Feed with urls!")
+        for url in urls:
+            process_url_task.delay(url)
+        logger.info(f"Queued {len(urls)} URLs for processing")
         return "retrieved", 200
     except Exception as e:
         logger.error(e)

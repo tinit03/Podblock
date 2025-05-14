@@ -1,0 +1,282 @@
+{
+  "model": "small",
+  "ads": [
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6413,
+        "completion_tokens": 25,
+        "total_tokens": 6438
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 27.36,
+            "end": 30.94,
+            "summary": "Join Jenna"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6413,
+        "completion_tokens": 24,
+        "total_tokens": 6437
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 3.67,
+            "end": 38.16,
+            "summary": "Read with Jenna Book Festival."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6274,
+        "completion_tokens": 5,
+        "total_tokens": 6279
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6274,
+        "completion_tokens": 5,
+        "total_tokens": 6279
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7844,
+        "completion_tokens": 5,
+        "total_tokens": 7849
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7844,
+        "completion_tokens": 5,
+        "total_tokens": 7849
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7369,
+        "completion_tokens": 24,
+        "total_tokens": 7393
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 112.04,
+            "end": 139.48,
+            "summary": "Podcast featuring inspiring celebrity stories."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7369,
+        "completion_tokens": 78,
+        "total_tokens": 7447
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 90.44,
+            "end": 110.28,
+            "summary": "Register your own signature easily."
+          },
+          {
+            "start": 112.04,
+            "end": 139.48,
+            "summary": "Jenna"
+          },
+          {
+            "start": 166.59,
+            "end": 171.25,
+            "summary": "Watch the Today Show weekdays."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6087,
+        "completion_tokens": 5,
+        "total_tokens": 6092
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6087,
+        "completion_tokens": 5,
+        "total_tokens": 6092
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6812,
+        "completion_tokens": 5,
+        "total_tokens": 6817
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6812,
+        "completion_tokens": 5,
+        "total_tokens": 6817
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 4995,
+        "completion_tokens": 5,
+        "total_tokens": 5000
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 4995,
+        "completion_tokens": 5,
+        "total_tokens": 5000
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7109,
+        "completion_tokens": 5,
+        "total_tokens": 7114
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7109,
+        "completion_tokens": 5,
+        "total_tokens": 7114
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6482,
+        "completion_tokens": 50,
+        "total_tokens": 6532
+      },
+      "ads": {
+        "chunk_id": 8,
+        "ads": [
+          {
+            "start": 141.36,
+            "end": 144.78,
+            "summary": "Date line premium ad-free listening."
+          },
+          {
+            "start": 190.29,
+            "end": 216.7,
+            "summary": "Wellness journey with new app."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6482,
+        "completion_tokens": 91,
+        "total_tokens": 6573
+      },
+      "ads": {
+        "chunk_id": 8,
+        "ads": [
+          {
+            "start": 135.20,
+            "end": 157.65,
+            "summary": "Dateline premium ad-free experience."
+          },
+          {
+            "start": 168.09,
+            "end": 189.07,
+            "summary": "Xfinity Gateway for better Wi-Fi."
+          },
+          {
+            "start": 189.43,
+            "end": 217.94,
+            "summary": "Start today app for wellness."
+          }
+        ]
+    }
+  ]
+}
+

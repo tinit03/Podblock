@@ -32,9 +32,10 @@ class XMLForwarder:
         if any(pattern in flow.request.url for pattern in [self.server_podcast_endpoint]):
             return
 
-        print(f"Intercepted initial podcast request: {flow.request.url}")
+        print(f"Intercepted podcast request: {flow.request.url}")
         encoded_url = quote(flow.request.url, safe=":/")
         redirect_url = f"{self.server_podcast_endpoint}?url={encoded_url}"
+        print(f"Redirecting to PodBlock server: {self.server_podcast_endpoint}")
 
         flow.response = http.Response.make(
             302,

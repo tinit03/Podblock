@@ -33,12 +33,12 @@ def process_rss():
     if not url:
         return jsonify({"error": "No url provided"}), 400
     try:
+        logger.info("RSS-Feed uploaded to the server.")
         rss = fetch_rss(url)
         urls = extract_rss_urls(rss, limit=3)  # Number of urls to retrieve
-        logger.info(f"Retrieved RSS-Feed with urls!")
         for url in urls:
             process_url_task.delay(url)
-        logger.info(f"Queued {len(urls)} URLs for processing!")
+        logger.info(f"Queued {len(urls)} URLs for processing.")
         return "retrieved", 200
     except Exception as e:
         logger.error(e)

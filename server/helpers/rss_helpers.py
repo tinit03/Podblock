@@ -43,5 +43,5 @@ def extract_rss_urls(rss_content, limit=1):
             if len(urls) >= limit:
                 break
 
-    logger.info(f"Retrieved {len(urls)} audio URLs from RSS feed")
+    logger.info(f"Retrieved {len(urls)} audio URLs from RSS feed.")
     return urls

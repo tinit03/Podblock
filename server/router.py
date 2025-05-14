@@ -38,7 +38,7 @@ def process_rss():
         logger.info(f"Retrieved RSS-Feed with urls!")
         for url in urls:
             process_url_task.delay(url)
-        logger.info(f"Queued {len(urls)} URLs for processing")
+        logger.info(f"Queued {len(urls)} URLs for processing!")
         return "retrieved", 200
     except Exception as e:
         logger.error(e)

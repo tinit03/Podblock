@@ -24,11 +24,12 @@ logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
 
-
 load_dotenv("api.env")
+
 # Initialize the whisper model
-model = WhisperModel("tiny.en", device="cpu", compute_type="int8")
+model = WhisperModel("base", device="cpu", compute_type="int8")
 batched_model = BatchedInferencePipeline(model=model)
+
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 intro = AudioSegment.from_file('resources/intro.mp3')
 
@@ -44,25 +45,28 @@ def chunk_audio(audio, chunk_duration_seconds=240, chunk_duration_ms=240000):
 
 
 def transcribe_audio(audio_segment):
-    buffer = BytesIO()
-    audio_segment.export(buffer, format="wav")
-    buffer.seek(0)
-    segments, _ = batched_model.transcribe(buffer, word_timestamps=True)
-    # Extract word-level timestamps
-    transcription = [
-        {
-            "start": word.start,
-            "end": word.end,
-            "text": word.word
-        }
-        for segment in segments
-        for word in segment.words
-    ]
-    # Format the data to send to ChatGPT
-    formatted_transcription = "\n".join(
-        [f"[{w['start']}-{w['end']}] {w['text']}" for w in transcription]
-    )
-    return formatted_transcription
+    try:
+        buffer = BytesIO()
+        audio_segment.export(buffer, format="wav")
+        buffer.seek(0)
+        segments, _ = batched_model.transcribe(buffer, word_timestamps=True)
+        # Extract word-level timestamps
+        transcription = [
+            {
+                "start": word.start,
+                "end": word.end,
+                "text": word.word
+            }
+            for segment in segments
+            for word in segment.words
+        ]
+        # Format the data to send to ChatGPT
+        formatted_transcription = "\n".join(
+            [f"[{w['start']}-{w['end']}] {w['text']}" for w in transcription]
+        )
+        return formatted_transcription
+    except Exception as e:
+        logger.error(e)
 
 
 def detect_ads(transcript):
@@ -70,7 +74,7 @@ def detect_ads(transcript):
     try:
         completion = \
             client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4o",
                 messages=[
                     {
                         "role": "system",
@@ -172,7 +176,7 @@ def fetch_audio(url):
 
 def process_audio(audio_segment, url, streaming):
     """
-    Process audio from url.
+        Process audio from url.
     """
     try:
         frame_rate = audio_segment.frame_rate
@@ -180,15 +184,15 @@ def process_audio(audio_segment, url, streaming):
         update_total_number_of_chunks(url, len(chunks))
         logger.info(f"Chunking complete: {url}")
 
-        for i,  chunk in enumerate(chunks):
+        for i, chunk in enumerate(chunks):
             transcription = transcribe_audio(chunk)
-            logger.info(f"Transcription complete for chunk {i+1}/{len(chunks)}: {url}")
+            logger.info(f"Transcription complete for chunk {i + 1}/{len(chunks)}: {url}")
 
             ad_segments = detect_ads(transcription)
-            logger.info(f"Ad-analysis complete for chunk {i+1}/{len(chunks)}: {url}")
+            logger.info(f"Ad-analysis complete for chunk {i + 1}/{len(chunks)}: {url}")
 
             processed_chunk = remove_ads(chunk, ad_segments)
-            logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {url}")
+            logger.info(f"Processing complete for chunk {i + 1}/{len(chunks)}: {url}")
 
             if i == 0 and not streaming:
                 processed_chunk = intro + processed_chunk
@@ -205,3 +209,20 @@ def process_audio(audio_segment, url, streaming):
         raise
 
 
+def retrieve_timestamps(mp3, name):
+    try:
+        audio = AudioSegment.from_mp3(mp3)
+
+        duration = audio.duration_seconds
+        logger.info(f'Duration: {duration}')
+
+        transcription = transcribe_audio(audio)
+        logger.info(f"Transcription complete: {name}")
+
+        added_segments = detect_ads(transcription)
+        logger.info(f"Ad-analysis complete: {name}")
+        return added_segments, duration
+
+    except Exception as e:
+        print(f"Error processing: {e}")
+        raise

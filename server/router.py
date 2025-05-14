@@ -8,12 +8,12 @@ from flask import Response
 from enums.status import AudioStatus
 from tasks import process_urls_task, initiate_streaming_task
 
-from audio_processing import fetch_audio
+from audio_processing import fetch_audio, retrieve_timestamps
 from helpers.rss_helpers import extract_rss_urls, fetch_rss
 from helpers.file_helpers import allowed_file, save_file
 from helpers.cache_helpers import retrieve_status, retrieve_audio, cached_url, initiate_key
 
-from flask import Blueprint, request, jsonify, send_file, Response, stream_with_context
+from flask import Blueprint, request, jsonify, send_file, Response, stream_with_context, current_app
 import xml.etree.ElementTree as ET
 import logging
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac'}
@@ -84,25 +84,20 @@ def request_podcast():
         return jsonify({"error": str(e)}), 500
 
 
-# @audio_bp.route('/upload_from_extension', methods=['POST'])
-# def extension():
-#     if 'file' not in request.files:
-#         return "No file found", 400
-#
-#     file = request.files['file']
-#
-#     if not allowed_file(file.filename, ALLOWED_EXTENSIONS):
-#         return "Filetype not allowed", 400
-#     if file.filename == '':
-#         return "No file found"
-#
-#     # Access file details
-#     print(f"Filename: {file.filename}")
-#     print(f"Content-Type: {file.content_type}")
-#     try:
-#         file_path= save_file(file, './uploads')
-#         # Process the uploaded audio file
-#         result = process(file_path)
-#         return jsonify(result), 200
-#     except Exception as e:
-#         return f"An error occured, {str(e)}", 500
+@audio_bp.route('/extension', methods=['POST'])
+def extension():
+    if 'file' not in request.files:
+        return "No file found", 400
+    file = request.files['file']
+    name = file.filename
+    logger.info(f'Processing {name}!')
+    try:
+
+        timestamps, duration = retrieve_timestamps(file, name)
+        return jsonify({
+            "timestamps": timestamps,
+            "duration": duration
+        }), 200
+    except Exception as e:
+        logger.error(f'Error retrieving timestamps: {e}')
+        return jsonify({"error": str(e)}), 500

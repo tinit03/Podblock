@@ -100,7 +100,7 @@ def detect_ads(transcript):
         raise
 
 
-def remove_ads(audio, ad_segments):
+def remove_ads(audio, ad_segments, flag=None):
     """Removes ad segments from the audio file with optimized processing."""
     if not ad_segments:
         print("No ads to remove.")
@@ -117,7 +117,7 @@ def remove_ads(audio, ad_segments):
         start, end = segment["start"] * 1000, segment["end"] * 1000  # Convert to milliseconds
 
         # Edge Case 1: Adjust ads in the first 5 seconds
-        if start <= 5000:
+        if start <= 5000 and flag=="first":
             start = max(0, start - 1000)
 
         # Edge Case 2: Merge close ads
@@ -127,7 +127,7 @@ def remove_ads(audio, ad_segments):
             merged_ads.append({"start": start, "end": end})
 
     # Edge Case 3: Remove everything from the last ad if it's near the end
-    if merged_ads and merged_ads[-1]["end"] >= total_duration - 10000:
+    if merged_ads and merged_ads[-1]["end"] >= total_duration - 10000 and flag=="last":
         merged_ads[-1]["end"] = total_duration
 
     # Extract non-ad sections with proper updating of previous_end
@@ -186,8 +186,12 @@ def process_audio(audio_segment, url, streaming):
 
             ad_segments = detect_ads(transcription)
             logger.info(f"Ad-analysis complete for chunk {i+1}/{len(chunks)}: {url}")
-
-            processed_chunk = remove_ads(chunk, ad_segments)
+            flag = None
+            if i == 0:
+                flag = "first"
+            elif i == len(chunks) - 1:
+                flag = "last"
+            processed_chunk = remove_ads(chunk, ad_segments, flag=flag)
             logger.info(f"Processing complete for chunk {i+1}/{len(chunks)}: {url}")
 
             if i == 0 and not streaming:

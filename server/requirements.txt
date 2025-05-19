@@ -15,5 +15,6 @@ faster-whisper
 requests
 openai
 python-dotenv
+pytest>=7.0
 
 huggingface_hub[hf_xet]

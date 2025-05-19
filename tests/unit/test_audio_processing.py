@@ -82,7 +82,7 @@ def test_detect_ads_parsing(mock_create):
 
 @patch("server.audio_processing.transcribe_audio", return_value="fake transcript")
 @patch("server.audio_processing.detect_ads", return_value=[])
-@patch("server.audio_processing.remove_ads", side_effect=lambda audio, _: audio)
+@patch("server.audio_processing.remove_ads", side_effect=lambda audio, ads, flag=None: audio)
 @patch("server.audio_processing.cache_chunk")
 @patch("server.audio_processing.update_total_number_of_chunks")
 @patch("server.audio_processing.update_status_to_complete")

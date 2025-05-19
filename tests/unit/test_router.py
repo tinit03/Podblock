@@ -20,7 +20,7 @@ def client():
 
 @patch("server.router.fetch_rss")
 @patch("server.router.extract_rss_urls")
-@patch("server.router.process_urls_task.delay")
+@patch("server.router.process_url_task.delay")
 def test_process_rss_success(mock_delay, mock_extract, mock_fetch, client):
     mock_fetch.return_value = b"<rss>...</rss>"
     mock_extract.return_value = ["https://audio1.mp3", "https://audio2.mp3"]
@@ -29,7 +29,7 @@ def test_process_rss_success(mock_delay, mock_extract, mock_fetch, client):
 
     assert response.status_code == 200
     assert response.data == b"retrieved"
-    mock_delay.assert_called_once()
+    assert mock_delay.call_count == 2
 
 
 def test_process_rss_missing_url(client):

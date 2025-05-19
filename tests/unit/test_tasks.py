@@ -3,17 +3,10 @@ from unittest.mock import patch, MagicMock
 
 patcher = patch("server.audio_processing.AudioSegment.from_file", return_value=MagicMock(name="AudioSegment"))
 patcher.start()
-from server.tasks import process_urls_task, process_url_task, initiate_streaming_task
+from server.tasks import process_url_task, initiate_streaming_task
 
 def teardown_module(module):
     patcher.stop()
-
-@patch("server.tasks.process_url_task.delay")
-def test_process_urls_task(mock_delay):
-    urls = ["url1", "url2"]
-    result = process_urls_task(urls)
-    assert mock_delay.call_count == len(urls)
-
 
 @patch("server.tasks.fetch_audio")
 @patch("server.tasks.initiate_key")

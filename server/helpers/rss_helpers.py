@@ -4,6 +4,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+
 def fetch_rss(url):
     """
     Fetch rss from url.
@@ -20,6 +21,7 @@ def fetch_rss(url):
     except Exception as e:
         logger.error(f"Error fetching RSS from {url}: {e}")
         raise
+
 
 def extract_rss_urls(rss_content, limit=1):
     """
@@ -41,5 +43,5 @@ def extract_rss_urls(rss_content, limit=1):
             if len(urls) >= limit:
                 break
 
-    logger.info(f"Retrieved {len(urls)} audio URLs from RSS feed")
+    logger.info(f"Retrieved {len(urls)} URLs from RSS feed.")
     return urls

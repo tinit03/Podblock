@@ -12,13 +12,13 @@ class Config:
     CACHE_REDIS_DB = 0
     REDIS_URL = f'{BASE_REDIS}/0'
 
-    CELERY_BROKER_URL = f'{BASE_REDIS}/1'
-    CELERY_RESULT_BACKEND = f'{BASE_REDIS}/2'
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_ACCEPT_CONTENT = ['json']
+    broker_url = f'{BASE_REDIS}/1'
+    result_backend = f'{BASE_REDIS}/2'
+    task_serializer = 'json'
+    result_serializer = 'json'
+    accept_content = ['json']
 
-    CELERY_TASK_QUEUES = (
+    task_queues = (
         Queue(
             "stream",
             routing_key="stream.#",
@@ -31,6 +31,6 @@ class Config:
         ),
     )
 
-    CELERY_TASK_DEFAULT_QUEUE = "background"
-    CELERY_TASK_DEFAULT_EXCHANGE = "background"
-    CELERY_TASK_DEFAULT_ROUTING_KEY = "background.default"
+    task_default_queue = "background"
+    task_default_exchange = "background"
+    task_default_routing_key = "background.default"

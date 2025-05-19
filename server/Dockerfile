@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
 # Copy requirements first for caching
 COPY requirements.txt .
 
+# Upgrade pip before installing anything
+RUN pip install --upgrade pip
+
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 

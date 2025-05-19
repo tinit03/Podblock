@@ -14,17 +14,6 @@ logger = logging.getLogger(__name__)
 celery = Celery('podblock')
 celery.config_from_object('config.Config', namespace='CELERY')
 
-
-@celery.task
-def process_urls_task(urls):
-    """
-    Process audio urls from rss.
-    """
-    for url in urls:
-        process_url_task.delay(url)
-    logger.info(f"Queued {len(urls)} URLs for processing")
-
-
 @celery.task(
     bind=True,
     queue='background',

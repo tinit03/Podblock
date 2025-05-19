@@ -1,0 +1,51 @@
+{
+  "model": "small",
+  "total_time": 224.81912741798442,
+  "chunk_times": [
+    {
+      "chunk_id": 0,
+      "duration": 240,
+      "transcription_time": 26.391817292023916
+    },
+    {
+      "chunk_id": 1,
+      "duration": 240,
+      "transcription_time": 25.63475904095685
+    },
+    {
+      "chunk_id": 2,
+      "duration": 240,
+      "transcription_time": 27.23314195801504
+    },
+    {
+      "chunk_id": 3,
+      "duration": 240,
+      "transcription_time": 26.47357595898211
+    },
+    {
+      "chunk_id": 4,
+      "duration": 240,
+      "transcription_time": 21.697870416974183
+    },
+    {
+      "chunk_id": 5,
+      "duration": 240,
+      "transcription_time": 26.03326812502928
+    },
+    {
+      "chunk_id": 6,
+      "duration": 240,
+      "transcription_time": 21.56071404198883
+    },
+    {
+      "chunk_id": 7,
+      "duration": 240,
+      "transcription_time": 26.32307729200693
+    },
+    {
+      "chunk_id": 8,
+      "duration": 220,
+      "transcription_time": 23.47090329200728
+    }
+  ]
+}

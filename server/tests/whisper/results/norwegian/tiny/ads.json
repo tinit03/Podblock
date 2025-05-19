@@ -1,0 +1,236 @@
+{
+  "model": "tiny",
+  "ads": [
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6467,
+        "completion_tokens": 5,
+        "total_tokens": 6472
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6467,
+        "completion_tokens": 5,
+        "total_tokens": 6472
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6974,
+        "completion_tokens": 5,
+        "total_tokens": 6979
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6974,
+        "completion_tokens": 5,
+        "total_tokens": 6979
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6334,
+        "completion_tokens": 5,
+        "total_tokens": 6339
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6334,
+        "completion_tokens": 5,
+        "total_tokens": 6339
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7190,
+        "completion_tokens": 5,
+        "total_tokens": 7195
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7190,
+        "completion_tokens": 54,
+        "total_tokens": 7244
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 68.02,
+            "end": 70.66,
+            "summary": "Podcast sponsor of a service."
+          },
+          {
+            "start": 178.29,
+            "end": 187.37,
+            "summary": "Jensidiga offers various insurance products."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7325,
+        "completion_tokens": 5,
+        "total_tokens": 7330
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7325,
+        "completion_tokens": 5,
+        "total_tokens": 7330
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7647,
+        "completion_tokens": 5,
+        "total_tokens": 7652
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7647,
+        "completion_tokens": 5,
+        "total_tokens": 7652
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7388,
+        "completion_tokens": 5,
+        "total_tokens": 7393
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7388,
+        "completion_tokens": 56,
+        "total_tokens": 7444
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": [
+          {
+            "start": 152.27,
+            "end": 174.25,
+            "summary": "Blotshot Ice new update promotion."
+          },
+          {
+            "start": 168.93,
+            "end": 184.92,
+            "summary": "Gajra Tronans subscription service details."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 4036,
+        "completion_tokens": 57,
+        "total_tokens": 4093
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 101.23,
+            "end": 103.69,
+            "summary": "Tripleteks helps all businesses register."
+          },
+          {
+            "start": 121.08,
+            "end": 124.54,
+            "summary": "Tripleteks assists with tax filing."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 4036,
+        "completion_tokens": 29,
+        "total_tokens": 4065
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 100.73,
+            "end": 130.32,
+            "summary": "Trippelteks helps all businesses efficiently."
+          }
+        ]
+      }
+    }
+  ]
+}

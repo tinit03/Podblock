@@ -37,21 +37,19 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+
     steps:
-      - name: placeholder
-        run: echo "no-need-to-build-now"
-    # steps:
-    #   - name: Clone repo to pipeline
-    #     uses: actions/checkout@v4
+      - name: Clone repo to pipeline
+        uses: actions/checkout@v4
 
-    #   - name: Build Docker image
-    #     run: docker build -t podblock:latest .
+      - name: Build Docker image from server/
+        run: docker build -t podblock:latest ./server
 
-    #   - name: Save Docker image
-    #     run: docker save podblock:latest -o podblock.tar
+      - name: Save Docker image to tar
+        run: docker save podblock:latest -o podblock.tar
 
-    #   - name: Upload Docker image artifact
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: podblock-docker-image
-    #       path: podblock.tar
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: podblock-docker-image
+          path: podblock.tar

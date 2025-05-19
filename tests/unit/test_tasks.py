@@ -2,16 +2,14 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock
 
+os.environ["OPENAI_API_KEY"] = "fake-key-for-tests"
+
 patcher = patch("server.audio_processing.AudioSegment.from_file", return_value=MagicMock(name="AudioSegment"))
 patcher.start()
 from server.tasks import process_url_task, initiate_streaming_task
 
 def teardown_module(module):
     patcher.stop()
-@pytest.fixture(autouse=True, scope="module")
-def mock_env_key():
-    with patch.dict(os.environ, {"OPENAI_API_KEY": "mock-key"}):
-        yield
 @patch("server.tasks.fetch_audio")
 @patch("server.tasks.initiate_key")
 @patch("server.tasks.cached_url", return_value=False)

@@ -5,6 +5,8 @@ import os
 mock_audio_segment = MagicMock()
 mock_audio_segment.from_file.return_value = MagicMock(name="AudioSegment")
 
+os.environ["OPENAI_API_KEY"] = "fake-key-for-tests"
+
 sys.modules["pydub"] = MagicMock(AudioSegment=mock_audio_segment)
 sys.modules["pydub.audio_segment"] = MagicMock(AudioSegment=mock_audio_segment)
 
@@ -16,11 +18,6 @@ def client():
     app = Flask(__name__)
     app.register_blueprint(audio_bp)
     return app.test_client()
-
-@pytest.fixture(autouse=True, scope="module")
-def mock_env_key():
-    with patch.dict(os.environ, {"OPENAI_API_KEY": "mock-key"}):
-        yield
 @patch("server.router.fetch_rss")
 @patch("server.router.extract_rss_urls")
 @patch("server.router.process_url_task.delay")

@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import sys
-
+import os
 # Patch pydub to avoid FileNotFoundError during import
 mock_audio_segment = MagicMock()
 mock_audio_segment.from_file.return_value = MagicMock(name="AudioSegment")
@@ -19,7 +19,10 @@ from server.audio_processing import (
     process_audio,
 )
 
-
+@pytest.fixture(autouse=True, scope="module")
+def mock_env_key():
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "mock-key"}):
+        yield
 @pytest.fixture
 def dummy_audio_segment():
     return MagicMock(duration_seconds=10, __len__=lambda self: 10000)

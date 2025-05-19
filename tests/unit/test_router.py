@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import sys
-
+import os
 mock_audio_segment = MagicMock()
 mock_audio_segment.from_file.return_value = MagicMock(name="AudioSegment")
 
@@ -17,7 +17,10 @@ def client():
     app.register_blueprint(audio_bp)
     return app.test_client()
 
-
+@pytest.fixture(autouse=True, scope="module")
+def mock_env_key():
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "mock-key"}):
+        yield
 @patch("server.router.fetch_rss")
 @patch("server.router.extract_rss_urls")
 @patch("server.router.process_url_task.delay")

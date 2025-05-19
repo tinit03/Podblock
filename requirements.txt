@@ -1,9 +1,0 @@
-Flask
-Flask-Cors
-Flask-Caching
-redis
-requests
-pydub
-faster-whisper
-openai
-python-dotenv

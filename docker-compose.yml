@@ -2,19 +2,75 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5001:5000"
     depends_on:
       - redis
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=production
     volumes:
-      - .:/app
+      - ./server:/app
     restart: unless-stopped
+    env_file: server/api.env
+    command: python main.py
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    restart: unless-stopped
+
+  celery_stream:
+    build: ./server
+    depends_on:
+      - redis
+      - app
+    env_file: server/api.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./server:/app
+    command: >
+      celery -A tasks worker
+        --loglevel=info
+        --pool=threads
+        --concurrency=8
+        -Q stream
+    restart: unless-stopped
+
+  celery_background:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - app
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./server:/app
+    command: >
+      celery -A tasks worker
+        --loglevel=info
+        --pool=threads
+        --concurrency=16
+        -Q background
+    restart: unless-stopped
+
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    depends_on:
+      - app
+    environment:
+      PODBLOCK_SERVER: "http://app:5000"
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./proxy:/proxy
     restart: unless-stopped

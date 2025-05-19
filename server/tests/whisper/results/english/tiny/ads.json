@@ -1,0 +1,292 @@
+{
+  "model": "tiny",
+  "ads": [
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6495,
+        "completion_tokens": 26,
+        "total_tokens": 6521
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 2.07,
+            "end": 36.04,
+            "summary": "Nashville book festival tickets available."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6495,
+        "completion_tokens": 24,
+        "total_tokens": 6519
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 12.07,
+            "end": 38.64,
+            "summary": "Join book festival Nashville event."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6622,
+        "completion_tokens": 5,
+        "total_tokens": 6627
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6622,
+        "completion_tokens": 5,
+        "total_tokens": 6627
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7338,
+        "completion_tokens": 5,
+        "total_tokens": 7343
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7338,
+        "completion_tokens": 5,
+        "total_tokens": 7343
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7125,
+        "completion_tokens": 26,
+        "total_tokens": 7151
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 112.12,
+            "end": 139.56,
+            "summary": "Jenna"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7125,
+        "completion_tokens": 50,
+        "total_tokens": 7175
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 112.12,
+            "end": 139.56,
+            "summary": "Jenna promotes her Open Book podcast."
+          },
+          {
+            "start": 142.77,
+            "end": 171.49,
+            "summary": "Today Show general promotion on NBC."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 5666,
+        "completion_tokens": 5,
+        "total_tokens": 5671
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 5666,
+        "completion_tokens": 5,
+        "total_tokens": 5671
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7155,
+        "completion_tokens": 5,
+        "total_tokens": 7160
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7155,
+        "completion_tokens": 5,
+        "total_tokens": 7160
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 4572,
+        "completion_tokens": 5,
+        "total_tokens": 4577
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 4572,
+        "completion_tokens": 5,
+        "total_tokens": 4577
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6699,
+        "completion_tokens": 5,
+        "total_tokens": 6704
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6699,
+        "completion_tokens": 5,
+        "total_tokens": 6704
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6506,
+        "completion_tokens": 128,
+        "total_tokens": 6634
+      },
+      "ads": {
+        "chunk_id": 8,
+        "ads": [
+          {
+            "start": 141.06,
+            "end": 144.98,
+            "summary": "Date line premium, ad-free listening."
+          },
+          {
+            "start": 154.15,
+            "end": 156.49,
+            "summary": "Subscribe on Apple Podcasts, Spotify."
+          },
+          {
+            "start": 184.21,
+            "end": 188.31,
+            "summary": "Xfinity Wi-Fi is booming everywhere."
+          },
+          {
+            "start": 194.35,
+            "end": 206.98,
+            "summary": "Get everything for a healthier you."
+          },
+          {
+            "start": 212.0,
+            "end": 217.66,
+            "summary": "Download Star Today from App Store."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6506,
+        "completion_tokens": 77,
+        "total_tokens": 6583
+      },
+      "ads": {
+        "chunk_id": 8,
+        "ads": [
+          {
+            "start": 140.04,
+            "end": 158.77,
+            "summary": "ad-free listening on Dateline Premium."
+          },
+          {
+            "start": 168.15,
+            "end": 189.97,
+            "summary": "Xfinity Gateway, fast Wi-Fi benefits."
+          },
+          {
+            "start": 191.97,
+            "end": 218.16,
+            "summary": "fitness app subscription, healthy lifestyle assistance."
+          }
+        ]
+      }
+    }
+  ]
+}

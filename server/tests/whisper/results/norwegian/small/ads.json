@@ -1,0 +1,244 @@
+{
+  "model": "small",
+  "ads": [
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6179,
+        "completion_tokens": 25,
+        "total_tokens": 6204
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 22.47,
+            "end": 30.63,
+            "summary": "TeleNor includes scam alerts subscription."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6179,
+        "completion_tokens": 25,
+        "total_tokens": 6204
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 22.47,
+            "end": 33.13,
+            "summary": "TeleNor offers scam alert service."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6858,
+        "completion_tokens": 5,
+        "total_tokens": 6863
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6858,
+        "completion_tokens": 5,
+        "total_tokens": 6863
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6385,
+        "completion_tokens": 5,
+        "total_tokens": 6390
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6385,
+        "completion_tokens": 5,
+        "total_tokens": 6390
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6683,
+        "completion_tokens": 25,
+        "total_tokens": 6708
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 183.03,
+            "end": 186.39,
+            "summary": "Join Jens Idige organization today."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6683,
+        "completion_tokens": 28,
+        "total_tokens": 6711
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 178.19,
+            "end": 186.39,
+            "summary": "Join our team at jensidige.no."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6627,
+        "completion_tokens": 5,
+        "total_tokens": 6632
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6627,
+        "completion_tokens": 5,
+        "total_tokens": 6632
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7244,
+        "completion_tokens": 5,
+        "total_tokens": 7249
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7244,
+        "completion_tokens": 5,
+        "total_tokens": 7249
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7173,
+        "completion_tokens": 25,
+        "total_tokens": 7198
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": [
+          {
+            "start": 25.26,
+            "end": 29.38,
+            "summary": "Needing help beyond heroin use."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7173,
+        "completion_tokens": 5,
+        "total_tokens": 7178
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 3697,
+        "completion_tokens": 25,
+        "total_tokens": 3722
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 100.49,
+            "end": 130.2,
+            "summary": "TripleTex simplifies tax reporting process."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 3697,
+        "completion_tokens": 50,
+        "total_tokens": 3747
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 57.75,
+            "end": 60.85,
+            "summary": "Subscribe Svarts\u00e5stok podcast Spotify."
+          },
+          {
+            "start": 100.49,
+            "end": 129.58,
+            "summary": "TripleTex helps businesses handle taxes."
+          }
+        ]
+      }
+    }
+  ]
+}

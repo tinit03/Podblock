@@ -1,0 +1,253 @@
+{
+  "model": "base",
+  "ads": [
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6348,
+        "completion_tokens": 29,
+        "total_tokens": 6377
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 22.41,
+            "end": 28.35,
+            "summary": "Telefonsvindel er et \u00f8kende problem."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6348,
+        "completion_tokens": 26,
+        "total_tokens": 6374
+      },
+      "ads": {
+        "chunk_id": 0,
+        "ads": [
+          {
+            "start": 22.41,
+            "end": 33.19,
+            "summary": "Telenor warns of phone scams."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6920,
+        "completion_tokens": 5,
+        "total_tokens": 6925
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6920,
+        "completion_tokens": 5,
+        "total_tokens": 6925
+      },
+      "ads": {
+        "chunk_id": 1,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6758,
+        "completion_tokens": 5,
+        "total_tokens": 6763
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6758,
+        "completion_tokens": 5,
+        "total_tokens": 6763
+      },
+      "ads": {
+        "chunk_id": 2,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7657,
+        "completion_tokens": 91,
+        "total_tokens": 7748
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 68.5,
+            "end": 69.72,
+            "summary": "Podcasten er sponsor av Jensisidige."
+          },
+          {
+            "start": 113.33,
+            "end": 114.25,
+            "summary": "Jensidige har kunde st\u00f8tt om meg."
+          },
+          {
+            "start": 178.17,
+            "end": 186.41,
+            "summary": "Jensidige har sikker helse og verdia."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7657,
+        "completion_tokens": 31,
+        "total_tokens": 7688
+      },
+      "ads": {
+        "chunk_id": 3,
+        "ads": [
+          {
+            "start": 67.9,
+            "end": 187.81,
+            "summary": "Podcast sponsored by Jensidige insurance"
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 6726,
+        "completion_tokens": 5,
+        "total_tokens": 6731
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 6726,
+        "completion_tokens": 5,
+        "total_tokens": 6731
+      },
+      "ads": {
+        "chunk_id": 4,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7438,
+        "completion_tokens": 5,
+        "total_tokens": 7443
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7438,
+        "completion_tokens": 5,
+        "total_tokens": 7443
+      },
+      "ads": {
+        "chunk_id": 5,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 7150,
+        "completion_tokens": 5,
+        "total_tokens": 7155
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 7150,
+        "completion_tokens": 5,
+        "total_tokens": 7155
+      },
+      "ads": {
+        "chunk_id": 6,
+        "ads": []
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "usage": {
+        "prompt_tokens": 3705,
+        "completion_tokens": 25,
+        "total_tokens": 3730
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 100.43,
+            "end": 130.12,
+            "summary": "Triple Tex helps businesses handle taxes."
+          }
+        ]
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "usage": {
+        "prompt_tokens": 3705,
+        "completion_tokens": 71,
+        "total_tokens": 3776
+      },
+      "ads": {
+        "chunk_id": 7,
+        "ads": [
+          {
+            "start": 40.52,
+            "end": 54.94,
+            "summary": "Mental health hotline support offered."
+          },
+          {
+            "start": 57.35,
+            "end": 65.87,
+            "summary": "Subscribe and follow for updates."
+          },
+          {
+            "start": 100.43,
+            "end": 130.12,
+            "summary": "Triple Tex helps businesses manage finances."
+          }
+        ]
+      }
+    }
+  ]
+}

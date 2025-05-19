@@ -30,7 +30,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: echo "No tests available, skipping this step." # erstatt med pytest kommando når vi har lagd tester
+        run: pytest
 
   build:
     needs: test
